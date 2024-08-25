@@ -437,21 +437,27 @@ document.addEventListener('DOMContentLoaded', () => {
     // Füge den Testfallnamen und die Dokumentation hinzu
     newTestCases += `${testCaseName}\n    [Documentation]    ${testCaseDoc}\n`;
 
-    items.forEach(item => {
+    for (const item of items) {
       const titleElement = item.querySelector('.keyword-title');
+      const expectedArgs = JSON.parse(titleElement.dataset.args || '[]'); // Erwartete Argumente
 
       if (titleElement) {
         let command = `    ${titleElement.textContent}`;
         const inputs = item.querySelectorAll('input.custom-input');
 
-        inputs.forEach(input => {
-          if (input.value.trim() !== '') {
-            command += `    ${input.value.trim()}`;
+        // Überprüfe, ob alle Argumente gesetzt sind
+        const missingArgs = [];
+        inputs.forEach((input, index) => {
+          const inputValue = input.value.trim();
+          if (inputValue === '') {
+            missingArgs.push(expectedArgs[index]);
+          } else {
+            command += `    ${inputValue}`;
           }
         });
 
-        if (command.trim() === `    ${titleElement.textContent}`) {
-          alert(`Das Keyword "${titleElement.textContent}" enthält keine Argumente. Bitte fügen Sie die notwendigen Werte hinzu.`);
+        if (missingArgs.length > 0) {
+          alert(`Das Keyword "${titleElement.textContent}" erfordert das Setzen der folgenden Argumente: ${missingArgs.join(', ')}`);
           return;
         }
 
@@ -460,7 +466,7 @@ document.addEventListener('DOMContentLoaded', () => {
         alert('Ein Keyword-Titel fehlt. Bitte überprüfen Sie den Testfall.');
         return;
       }
-    });
+    }
 
     // Überprüfe, ob tatsächlich Testschritte vorhanden sind
     if (newTestCases.trim() === `${testCaseName}\n    [Documentation]    ${testCaseDoc}`) {
@@ -474,7 +480,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     downloadTestCase(updatedContent);
   }
-
 
   function appendTestCaseToFile(fileContent, newTestCases) {
     // Füge das Keyword am Ende der "*** Keywords ***"-Sektion hinzu
@@ -555,9 +560,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Event Listener für Buttons
     dialog.querySelector('.btn-confirm').onclick = () => {
-      const name = document.getElementById('keywordName').value;
-      const description = document.getElementById('keywordDescription').value;
-      const args = document.getElementById('keywordArguments').value.split(',').map(arg => arg.trim());
+      const name = document.getElementById('keywordName').value.trim();
+      const description = document.getElementById('keywordDescription').value.trim();
+      const args = document.getElementById('keywordArguments').value.split(',').map(arg => arg.trim()).filter(arg => arg !== '');
+
+      // Eingabevalidierung
+      if (!name) {
+        alert('Bitte geben Sie einen Namen für das Keyword ein.');
+        return;
+      }
+
+      if (!description) {
+        alert('Bitte geben Sie eine Beschreibung für das Keyword ein.');
+        return;
+      }
 
       addCustomKeyword(name, description, args);
       dialog.remove(); // Dialog schließen
@@ -567,14 +583,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function addCustomKeyword(name, description, args) {
-    if (!name || !description) return;
-
-    // Entferne leere Argumente
-    const cleanArgs = args.filter(arg => arg.trim() !== "");
-
     const newKeyword = {
       name: name,
-      args: cleanArgs, // Benutze die bereinigten Argumente
+      args: args, // Verwende die bereinigten Argumente
       steps: [],
       values: {},
       help: `TODO: ${description}`
