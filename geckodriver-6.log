@@ -1,0 +1,14 @@
+1724615476766	geckodriver	INFO	Listening on 127.0.0.1:54758
+1724615476786	mozrunner::runner	INFO	Running command: MOZ_CRASHREPORTER="1" MOZ_CRASHREPORTER_NO_REPORT="1" MOZ_CRASHREPORTER_SHUTDOWN="1" MOZ_NO_REMOTE="1" "/App ... s" "localhost" "-foreground" "-no-remote" "-profile" "/var/folders/gw/pbrzgm7n4dg6384v_grbzbnw0000gn/T/rust_mozprofilefxzkPy"
+console.warn: services.settings: Ignoring preference override of remote settings server
+console.warn: services.settings: Allow by setting MOZ_REMOTE_SETTINGS_DEVTOOLS=1 in the environment
+2024-08-25 21:51:16.935 firefox[332:1036825] WARNING: Secure coding is not enabled for restorable state! Enable secure coding by implementing NSApplicationDelegate.applicationSupportsSecureRestorableState: and returning YES.
+1724615477057	Marionette	INFO	Marionette enabled
+console.error: "Warning: unrecognized command line flag" "-remote-allow-hosts"
+1724615477142	Marionette	INFO	Listening on port 54766
+WebDriver BiDi listening on ws://127.0.0.1:54759
+Read port: 54766
+1724615477303	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
+UNSUPPORTED (log once): POSSIBLE ISSUE: unit 1 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
+DevTools listening on ws://127.0.0.1:54759/devtools/browser/bb034426-6498-4d2b-938b-32a063c8b4d6
+1724615480891	Marionette	INFO	Stopped listening on port 54766

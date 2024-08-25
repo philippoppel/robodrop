@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot generator="Robot 7.0 (Python 3.10.10 on darwin)" generated="2024-08-25T21:51:16.543754" rpa="false" schemaversion="5">
+<suite id="s1" name="Test" source="/Users/philippoppel/Desktop/RobotGUI/test.robot">
+<kw name="Open Browser To Login Page" type="SETUP">
+<kw name="Open Browser" owner="SeleniumLibrary">
+<msg time="2024-08-25T21:51:16.641825" level="INFO">Opening browser 'firefox' to base url 'https://the-internet.herokuapp.com/login'.</msg>
+<arg>${LOGIN_URL}</arg>
+<arg>firefox</arg>
+<doc>Opens a new browser instance to the optional ``url``.</doc>
+<status status="PASS" start="2024-08-25T21:51:16.641704" elapsed="3.776034"/>
+</kw>
+<kw name="Maximize Browser Window" owner="SeleniumLibrary">
+<doc>Maximizes current browser window.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.418105" elapsed="0.467561"/>
+</kw>
+<doc>Öffnet den Browser und navigiert zur Login-Seite.</doc>
+<status status="PASS" start="2024-08-25T21:51:16.641246" elapsed="4.244718"/>
+</kw>
+<test id="s1-t1" name="Login And Wave" line="51">
+<kw name="Sum Two Numbers">
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2024-08-25T21:51:20.888017" level="INFO">${result} = 3</msg>
+<var>${result}</var>
+<arg>${a} + ${b}</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.887644" elapsed="0.000420"/>
+</kw>
+<return>
+<value>${result}</value>
+<status status="PASS" start="2024-08-25T21:51:20.888151" elapsed="0.000120"/>
+</return>
+<arg>1</arg>
+<arg>2</arg>
+<doc>Berechnet die Summe von zwei Zahlen und gibt das Ergebnis zurück.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.887177" elapsed="0.001236"/>
+</kw>
+<kw name="Sum Two Numbers">
+<kw name="Evaluate" owner="BuiltIn">
+<msg time="2024-08-25T21:51:20.889159" level="INFO">${result} = 5</msg>
+<var>${result}</var>
+<arg>${a} + ${b}</arg>
+<doc>Evaluates the given expression in Python and returns the result.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.888922" elapsed="0.000265"/>
+</kw>
+<return>
+<value>${result}</value>
+<status status="PASS" start="2024-08-25T21:51:20.889258" elapsed="0.000037"/>
+</return>
+<arg>2</arg>
+<arg>3</arg>
+<doc>Berechnet die Summe von zwei Zahlen und gibt das Ergebnis zurück.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.888643" elapsed="0.000751"/>
+</kw>
+<kw name="Custom Greeting">
+<kw name="Log" owner="BuiltIn">
+<msg time="2024-08-25T21:51:20.889987" level="INFO">Hello, alo! Welcome to the testing framework.</msg>
+<arg>Hello, ${name}! Welcome to the testing framework.</arg>
+<doc>Logs the given message with the given level.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.889824" elapsed="0.000209"/>
+</kw>
+<arg>alo</arg>
+<doc>Zeigt eine benutzerdefinierte Begrüßung im Terminal an.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.889566" elapsed="0.000546"/>
+</kw>
+<status status="PASS" start="2024-08-25T21:51:20.886248" elapsed="0.004011"/>
+</test>
+<kw name="Close Browser" owner="SeleniumLibrary" type="TEARDOWN">
+<doc>Closes the current browser.</doc>
+<status status="PASS" start="2024-08-25T21:51:20.890869" elapsed="0.382884"/>
+</kw>
+<status status="PASS" start="2024-08-25T21:51:16.544630" elapsed="4.729190"/>
+</suite>
+<statistics>
+<total>
+<stat pass="1" fail="0" skip="0">All Tests</stat>
+</total>
+<tag>
+</tag>
+<suite>
+<stat pass="1" fail="0" skip="0" id="s1" name="Test">Test</stat>
+</suite>
+</statistics>
+<errors>
+<msg time="2024-08-25T21:51:16.541883" level="WARN">Error in file '/Users/philippoppel/Desktop/RobotGUI/test.robot' on line 47: The '[Return]' setting is deprecated. Use the 'RETURN' statement instead.</msg>
+</errors>
+</robot>

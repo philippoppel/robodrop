@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot Framework Drag-and-Drop Editor</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="css/style.css"> <!-- Reference to the external CSS file -->
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1><i class="fas fa-robot"></i> Robot Framework Drag-and-Drop Editor</h1>
+    <div class="file-buttons">
+<!--      <button class="upload-existing"><i class="fas fa-file-upload"></i>Upload Existing File</button>-->
+      <button class="select-robot"><i class="fas fa-file-alt"></i>Upload Keywords</button>
+      <input type="file" id="fileInput" accept=".robot" style="display: none;">
+    </div>
+  </div>
+  <div class="editor">
+    <div class="palette">
+      <h3><i class="fas fa-list"></i> Keyword-Palette</h3>
+      <input type="text" id="keywordFilter" placeholder="Keyword filtern..." class="keyword-filter"> <!-- Applied CSS class -->
+      <div id="keywords"></div>
+    </div>
+    <div class="workspace-container">
+      <h3><i class="fas fa-edit"></i> Testfall-Editor</h3>
+      <div id="workspace" class="workspace"></div>
+      <button class="export-button"><i class="fas fa-download"></i> Exportieren</button>
+    </div>
+  </div>
+</div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
