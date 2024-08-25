@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   keywordFilter.addEventListener('input', filterKeywords); // Filterfunktion bei Eingabe
 
+  // Call addKeywordButton to ensure the button is added to the palette
+  addKeywordButton();
   function handleFileUpload(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -23,12 +25,19 @@ document.addEventListener('DOMContentLoaded', () => {
       // Speichern des Datei-Inhalts für späteren Zugriff beim Exportieren
       localStorage.setItem('uploadedFileContent', content);
 
-      allKeywords = parseKeywords(content); // Vorhandene Keyword-Parsing Funktion
-      renderKeywords(allKeywords);
+      // Neue Keywords aus der Datei parsen
+      const importedKeywords = parseKeywords(content);
+
+      // Benutzerdefinierte Keywords beibehalten und zusammenführen
+      const customKeywords = allKeywords.filter(keyword => keyword.help && keyword.help.startsWith('TODO'));
+      allKeywords = [...importedKeywords, ...customKeywords];
+
+      renderKeywords(allKeywords); // Keywords neu rendern
     };
 
     reader.readAsText(file);
   }
+
 
 
   function parseKeywords(content) {
@@ -258,7 +267,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
       keywordContainer.appendChild(keywordElement);
     });
+
+    // Füge den Button nach den Keywords hinzu
+    addKeywordButton();
   }
+
 
   function filterKeywords() {
     const filterText = keywordFilter.value.toLowerCase();
@@ -400,8 +413,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function exportTestCase() {
+    const testCaseName = document.getElementById('test-case-name').value.trim();
+    const testCaseDoc = document.getElementById('test-case-doc').value.trim();
     const items = workspace.querySelectorAll('.keyword-item');
     let newTestCases = '';
+
+    // Eingabevalidierung
+    if (!testCaseName) {
+      alert('Bitte geben Sie einen Namen für den Testfall ein.');
+      return;
+    }
+
+    if (!testCaseDoc) {
+      alert('Bitte geben Sie eine Dokumentation für den Testfall ein.');
+      return;
+    }
+
+    if (items.length === 0) {
+      alert('Der Testfall muss mindestens einen Schritt enthalten.');
+      return;
+    }
+
+    // Füge den Testfallnamen und die Dokumentation hinzu
+    newTestCases += `${testCaseName}\n    [Documentation]    ${testCaseDoc}\n`;
 
     items.forEach(item => {
       const titleElement = item.querySelector('.keyword-title');
@@ -411,35 +445,67 @@ document.addEventListener('DOMContentLoaded', () => {
         const inputs = item.querySelectorAll('input.custom-input');
 
         inputs.forEach(input => {
-          if (input.value !== '') {
-            command += `    ${input.value}`;
+          if (input.value.trim() !== '') {
+            command += `    ${input.value.trim()}`;
           }
         });
 
+        if (command.trim() === `    ${titleElement.textContent}`) {
+          alert(`Das Keyword "${titleElement.textContent}" enthält keine Argumente. Bitte fügen Sie die notwendigen Werte hinzu.`);
+          return;
+        }
+
         newTestCases += `${command}\n`;
       } else {
-        console.error('No .keyword-title found for item:', item);
+        alert('Ein Keyword-Titel fehlt. Bitte überprüfen Sie den Testfall.');
+        return;
       }
     });
 
-    if (newTestCases.trim() === '') {
-      console.error('No test steps found. Please ensure that the elements have the correct structure.');
-    } else {
-      // Get the existing file content
-      const fileContent = localStorage.getItem('uploadedFileContent') || '';
-      const updatedContent = appendTestCaseToFile(fileContent, newTestCases);
-
-      downloadTestCase(updatedContent);
+    // Überprüfe, ob tatsächlich Testschritte vorhanden sind
+    if (newTestCases.trim() === `${testCaseName}\n    [Documentation]    ${testCaseDoc}`) {
+      alert('Es wurden keine Testschritte hinzugefügt. Der Testfall kann nicht exportiert werden.');
+      return;
     }
+
+    // Den Inhalt des hochgeladenen Files abrufen
+    const fileContent = localStorage.getItem('uploadedFileContent') || '';
+    const updatedContent = appendTestCaseToFile(fileContent, newTestCases);
+
+    downloadTestCase(updatedContent);
   }
+
 
   function appendTestCaseToFile(fileContent, newTestCases) {
-    // Ensure we append to the existing "*** Test Cases ***" section
-    const testCaseSection = '\n' + newTestCases.trim();
+    // Füge das Keyword am Ende der "*** Keywords ***"-Sektion hinzu
+    let customKeywords = '';
 
-    // Simply append the new test cases to the existing file content
-    return fileContent + testCaseSection;
+    allKeywords.forEach(keyword => {
+      if (keyword.help.startsWith('TODO')) {
+        customKeywords += `\n${keyword.name}\n    [Documentation]    ${keyword.help}`;
+        if (keyword.args.length > 0) {
+          // Argumente korrekt als Variablen formatiert ausgeben
+          const formattedArgs = keyword.args.map(arg => `\${${arg}}`).join('    ');
+          customKeywords += `\n    [Arguments]    ${formattedArgs}`;
+        }
+        customKeywords += '\n\n'; // Füge zwei Leerzeilen nach jedem Keyword hinzu
+      }
+    });
+
+    // Prüfen, ob eine "*** Keywords ***"-Sektion existiert
+    if (fileContent.includes('*** Keywords ***')) {
+      // Füge die benutzerdefinierten Keywords hinzu
+      const keywordSection = fileContent.split('*** Keywords ***')[1];
+      fileContent = fileContent.replace(keywordSection, customKeywords + keywordSection);
+    } else {
+      // Füge die Sektion am Ende hinzu
+      fileContent += `\n\n*** Keywords ***\n${customKeywords.trim()}\n\n`;
+    }
+
+    return fileContent + '\n\n*** Test Cases ***\n' + newTestCases.trim() + '\n';
   }
+
+
 
   function downloadTestCase(content) {
     const blob = new Blob([content], { type: 'text/plain' });
@@ -452,6 +518,72 @@ document.addEventListener('DOMContentLoaded', () => {
     anchor.click();
     document.body.removeChild(anchor);
   }
+
+
+  function addKeywordButton() {
+    const keywordContainer = document.getElementById('keywords');
+
+    const addButton = document.createElement('button');
+    addButton.className = 'btn-add-keyword';
+    addButton.textContent = '+';
+    addButton.onclick = openAddKeywordDialog;
+
+    keywordContainer.appendChild(addButton);
+  }
+
+  function openAddKeywordDialog() {
+    const dialog = document.createElement('div');
+    dialog.className = 'dialog-overlay';
+    dialog.innerHTML = `
+        <div class="dialog-content">
+            <h2>Neues Keyword hinzufügen</h2>
+            <label for="keywordName">Name des Keywords:</label>
+            <input type="text" id="keywordName" placeholder="Name" />
+
+            <label for="keywordDescription">Beschreibung:</label>
+            <textarea id="keywordDescription" placeholder="Beschreibung"></textarea>
+
+            <label for="keywordArguments">Argumente (komma-getrennt):</label>
+            <input type="text" id="keywordArguments" placeholder="arg1, arg2, ..." />
+
+            <button class="btn-confirm">Hinzufügen</button>
+            <button class="btn-cancel">Abbrechen</button>
+        </div>
+    `;
+
+    document.body.appendChild(dialog);
+
+    // Event Listener für Buttons
+    dialog.querySelector('.btn-confirm').onclick = () => {
+      const name = document.getElementById('keywordName').value;
+      const description = document.getElementById('keywordDescription').value;
+      const args = document.getElementById('keywordArguments').value.split(',').map(arg => arg.trim());
+
+      addCustomKeyword(name, description, args);
+      dialog.remove(); // Dialog schließen
+    };
+
+    dialog.querySelector('.btn-cancel').onclick = () => dialog.remove(); // Dialog schließen
+  }
+
+  function addCustomKeyword(name, description, args) {
+    if (!name || !description) return;
+
+    // Entferne leere Argumente
+    const cleanArgs = args.filter(arg => arg.trim() !== "");
+
+    const newKeyword = {
+      name: name,
+      args: cleanArgs, // Benutze die bereinigten Argumente
+      steps: [],
+      values: {},
+      help: `TODO: ${description}`
+    };
+
+    allKeywords.push(newKeyword);
+    renderKeywords(allKeywords); // Palette aktualisieren
+  }
+
 
 
 
