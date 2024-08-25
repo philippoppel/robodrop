@@ -318,3 +318,26 @@ body {
     font-size: 24px;
   }
 }
+
+.test-case-metadata {
+  margin-bottom: 20px;
+}
+
+.test-case-metadata label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.test-case-metadata input, .test-case-metadata textarea {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.test-case-metadata textarea {
+  height: 20px;
+  resize: vertical;
+}

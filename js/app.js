@@ -401,7 +401,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function exportTestCase() {
     const items = workspace.querySelectorAll('.keyword-item');
-    let testCase = '*** Test Cases ***\nLogin And Wave\n';
+    let newTestCases = '';
 
     items.forEach(item => {
       const titleElement = item.querySelector('.keyword-title');
@@ -416,39 +416,29 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         });
 
-        testCase += `${command}\n`;
+        newTestCases += `${command}\n`;
       } else {
         console.error('No .keyword-title found for item:', item);
       }
     });
 
-    if (testCase.trim() === '*** Test Cases ***\nLogin And Wave') {
+    if (newTestCases.trim() === '') {
       console.error('No test steps found. Please ensure that the elements have the correct structure.');
     } else {
-      // Den Inhalt des hochgeladenen Files abrufen
-      const fileContent = localStorage.getItem('uploadedFileContent');
-      const updatedContent = appendTestCaseToFile(fileContent, testCase);
+      // Get the existing file content
+      const fileContent = localStorage.getItem('uploadedFileContent') || '';
+      const updatedContent = appendTestCaseToFile(fileContent, newTestCases);
 
       downloadTestCase(updatedContent);
     }
   }
 
-  function appendTestCaseToFile(fileContent, testCase) {
-    if (!fileContent) {
-      console.error('No file content available.');
-      return '';
-    }
+  function appendTestCaseToFile(fileContent, newTestCases) {
+    // Ensure we append to the existing "*** Test Cases ***" section
+    const testCaseSection = '\n' + newTestCases.trim();
 
-    // Prüfen, ob bereits eine "*** Test Cases ***"-Sektion existiert
-    if (fileContent.includes('*** Test Cases ***')) {
-      // Den neuen Testfall an die bestehende "*** Test Cases ***"-Sektion anhängen
-      fileContent = fileContent.replace('*** Test Cases ***', `*** Test Cases ***\n${testCase.trim()}`);
-    } else {
-      // Falls keine "*** Test Cases ***"-Sektion vorhanden ist, füge sie am Ende hinzu
-      fileContent += `\n${testCase.trim()}`;
-    }
-
-    return fileContent;
+    // Simply append the new test cases to the existing file content
+    return fileContent + testCaseSection;
   }
 
   function downloadTestCase(content) {
@@ -462,6 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
     anchor.click();
     document.body.removeChild(anchor);
   }
+
 
 
   document.querySelector('.export-button').addEventListener('click', exportTestCase);

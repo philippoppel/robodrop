@@ -48,6 +48,14 @@ Sum Two Numbers
 
 *** Test Cases ***
 *** Test Cases ***
+Wurst
+    [Documentation]    login und winki winki
+    Open Browser To Login Page
+    Input Username And Password
+    Submit Login
+    Verify Login Successful
+    Wave Arm
+*** Test Cases ***
 Login And Wave
     Sum Two Numbers    1    2
     Sum Two Numbers    2    3

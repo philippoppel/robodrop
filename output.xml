@@ -1,86 +1,172 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<robot generator="Robot 7.0 (Python 3.10.10 on darwin)" generated="2024-08-25T21:51:16.543754" rpa="false" schemaversion="5">
+<robot generator="Robot 7.0 (Python 3.10.10 on darwin)" generated="2024-08-25T22:01:50.423586" rpa="false" schemaversion="5">
 <suite id="s1" name="Test" source="/Users/philippoppel/Desktop/RobotGUI/test.robot">
 <kw name="Open Browser To Login Page" type="SETUP">
 <kw name="Open Browser" owner="SeleniumLibrary">
-<msg time="2024-08-25T21:51:16.641825" level="INFO">Opening browser 'firefox' to base url 'https://the-internet.herokuapp.com/login'.</msg>
+<msg time="2024-08-25T22:01:50.523650" level="INFO">Opening browser 'firefox' to base url 'https://the-internet.herokuapp.com/login'.</msg>
 <arg>${LOGIN_URL}</arg>
 <arg>firefox</arg>
 <doc>Opens a new browser instance to the optional ``url``.</doc>
-<status status="PASS" start="2024-08-25T21:51:16.641704" elapsed="3.776034"/>
+<status status="PASS" start="2024-08-25T22:01:50.523513" elapsed="6.218106"/>
 </kw>
 <kw name="Maximize Browser Window" owner="SeleniumLibrary">
 <doc>Maximizes current browser window.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.418105" elapsed="0.467561"/>
+<status status="PASS" start="2024-08-25T22:01:56.741992" elapsed="3.168560"/>
 </kw>
 <doc>Öffnet den Browser und navigiert zur Login-Seite.</doc>
-<status status="PASS" start="2024-08-25T21:51:16.641246" elapsed="4.244718"/>
+<status status="PASS" start="2024-08-25T22:01:50.523041" elapsed="9.387701"/>
 </kw>
-<test id="s1-t1" name="Login And Wave" line="51">
+<test id="s1-t1" name="Wurst" line="51">
+<kw name="Open Browser To Login Page">
+<kw name="Open Browser" owner="SeleniumLibrary">
+<msg time="2024-08-25T22:01:59.912167" level="INFO">Opening browser 'firefox' to base url 'https://the-internet.herokuapp.com/login'.</msg>
+<arg>${LOGIN_URL}</arg>
+<arg>firefox</arg>
+<doc>Opens a new browser instance to the optional ``url``.</doc>
+<status status="PASS" start="2024-08-25T22:01:59.911798" elapsed="4.842047"/>
+</kw>
+<kw name="Maximize Browser Window" owner="SeleniumLibrary">
+<doc>Maximizes current browser window.</doc>
+<status status="PASS" start="2024-08-25T22:02:04.754163" elapsed="0.472573"/>
+</kw>
+<doc>Öffnet den Browser und navigiert zur Login-Seite.</doc>
+<status status="PASS" start="2024-08-25T22:01:59.911531" elapsed="5.315359"/>
+</kw>
+<kw name="Input Username And Password">
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2024-08-25T22:02:05.227991" level="INFO">Typing text 'tomsmith' into text field 'id=username'.</msg>
+<arg>id=username</arg>
+<arg>${USERNAME}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2024-08-25T22:02:05.227567" elapsed="0.030462"/>
+</kw>
+<kw name="Input Text" owner="SeleniumLibrary">
+<msg time="2024-08-25T22:02:05.258368" level="INFO">Typing text 'SuperSecretPassword!' into text field 'id=password'.</msg>
+<arg>id=password</arg>
+<arg>${PASSWORD}</arg>
+<doc>Types the given ``text`` into the text field identified by ``locator``.</doc>
+<status status="PASS" start="2024-08-25T22:02:05.258190" elapsed="0.014716"/>
+</kw>
+<doc>Gibt den Benutzernamen und das Passwort in die entsprechenden Felder ein.</doc>
+<status status="PASS" start="2024-08-25T22:02:05.227228" elapsed="0.045787"/>
+</kw>
+<kw name="Submit Login">
+<kw name="Click Button" owner="SeleniumLibrary">
+<msg time="2024-08-25T22:02:05.273506" level="INFO">Clicking button 'xpath=//button[@type='submit']'.</msg>
+<arg>xpath=//button[@type='submit']</arg>
+<doc>Clicks the button identified by ``locator``.</doc>
+<status status="PASS" start="2024-08-25T22:02:05.273370" elapsed="0.404734"/>
+</kw>
+<doc>Klickt auf den "Anmelden"-Button, um das Formular abzuschicken.</doc>
+<status status="PASS" start="2024-08-25T22:02:05.273178" elapsed="0.405013"/>
+</kw>
+<kw name="Verify Login Successful">
+<kw name="Page Should Contain" owner="SeleniumLibrary">
+<msg time="2024-08-25T22:02:05.682556" level="INFO">Current page contains text 'You logged into a secure area!'.</msg>
+<arg>You logged into a secure area!</arg>
+<doc>Verifies that current page contains ``text``.</doc>
+<status status="PASS" start="2024-08-25T22:02:05.678506" elapsed="0.004110"/>
+</kw>
+<doc>Überprüft, ob die Anmeldung erfolgreich war, indem nach einer Bestätigungsmeldung gesucht wird.</doc>
+<status status="PASS" start="2024-08-25T22:02:05.678340" elapsed="0.004348"/>
+</kw>
+<kw name="Wave Arm">
+<kw name="Move Arm" owner="MyLibrary">
+<msg time="2024-08-25T22:03:20.692411" level="FAIL">ConnectTimeout: HTTPConnectionPool(host='192.168.178.44', port=80): Max retries exceeded with url: /move_servos (Caused by ConnectTimeoutError(&lt;urllib3.connection.HTTPConnection object at 0x102c58a60&gt;, 'Connection to 192.168.178.44 timed out. (connect timeout=None)'))</msg>
+<arg>[90, 90, 135, 180, 90]</arg>
+<doc>Bewegt den Roboterarm zu den angegebenen Winkeln.
+:param angles: Liste der Winkel für jeden Servo.</doc>
+<status status="FAIL" start="2024-08-25T22:02:05.682995" elapsed="75.020964">ConnectTimeout: HTTPConnectionPool(host='192.168.178.44', port=80): Max retries exceeded with url: /move_servos (Caused by ConnectTimeoutError(&lt;urllib3.connection.HTTPConnection object at 0x102c58a60&gt;, 'Connection to 192.168.178.44 timed out. (connect timeout=None)'))</status>
+</kw>
+<kw name="Move Arm" owner="MyLibrary">
+<arg>[40, 90, 135, 180, 90]</arg>
+<doc>Bewegt den Roboterarm zu den angegebenen Winkeln.
+:param angles: Liste der Winkel für jeden Servo.</doc>
+<status status="NOT RUN" start="2024-08-25T22:03:20.704952" elapsed="0.000112"/>
+</kw>
+<kw name="Move Arm" owner="MyLibrary">
+<arg>[40, 90, 135, 180, 45]</arg>
+<doc>Bewegt den Roboterarm zu den angegebenen Winkeln.
+:param angles: Liste der Winkel für jeden Servo.</doc>
+<status status="NOT RUN" start="2024-08-25T22:03:20.705242" elapsed="0.000044"/>
+</kw>
+<kw name="Move Arm" owner="MyLibrary">
+<arg>[40, 90, 135, 180, 90]</arg>
+<doc>Bewegt den Roboterarm zu den angegebenen Winkeln.
+:param angles: Liste der Winkel für jeden Servo.</doc>
+<status status="NOT RUN" start="2024-08-25T22:03:20.705447" elapsed="0.000043"/>
+</kw>
+<doc>Bewegt den Arm durch eine Reihe von vorgegebenen Positionen.</doc>
+<status status="FAIL" start="2024-08-25T22:02:05.682837" elapsed="75.023017">ConnectTimeout: HTTPConnectionPool(host='192.168.178.44', port=80): Max retries exceeded with url: /move_servos (Caused by ConnectTimeoutError(&lt;urllib3.connection.HTTPConnection object at 0x102c58a60&gt;, 'Connection to 192.168.178.44 timed out. (connect timeout=None)'))</status>
+</kw>
+<doc>login und winki winki</doc>
+<status status="FAIL" start="2024-08-25T22:01:59.910885" elapsed="80.795776">ConnectTimeout: HTTPConnectionPool(host='192.168.178.44', port=80): Max retries exceeded with url: /move_servos (Caused by ConnectTimeoutError(&lt;urllib3.connection.HTTPConnection object at 0x102c58a60&gt;, 'Connection to 192.168.178.44 timed out. (connect timeout=None)'))</status>
+</test>
+<test id="s1-t2" name="Login And Wave" line="59">
 <kw name="Sum Two Numbers">
 <kw name="Evaluate" owner="BuiltIn">
-<msg time="2024-08-25T21:51:20.888017" level="INFO">${result} = 3</msg>
+<msg time="2024-08-25T22:03:20.710093" level="INFO">${result} = 3</msg>
 <var>${result}</var>
 <arg>${a} + ${b}</arg>
 <doc>Evaluates the given expression in Python and returns the result.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.887644" elapsed="0.000420"/>
+<status status="PASS" start="2024-08-25T22:03:20.709351" elapsed="0.000810"/>
 </kw>
 <return>
 <value>${result}</value>
-<status status="PASS" start="2024-08-25T21:51:20.888151" elapsed="0.000120"/>
+<status status="PASS" start="2024-08-25T22:03:20.710326" elapsed="0.000166"/>
 </return>
 <arg>1</arg>
 <arg>2</arg>
 <doc>Berechnet die Summe von zwei Zahlen und gibt das Ergebnis zurück.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.887177" elapsed="0.001236"/>
+<status status="PASS" start="2024-08-25T22:03:20.708434" elapsed="0.002332"/>
 </kw>
 <kw name="Sum Two Numbers">
 <kw name="Evaluate" owner="BuiltIn">
-<msg time="2024-08-25T21:51:20.889159" level="INFO">${result} = 5</msg>
+<msg time="2024-08-25T22:03:20.712549" level="INFO">${result} = 5</msg>
 <var>${result}</var>
 <arg>${a} + ${b}</arg>
 <doc>Evaluates the given expression in Python and returns the result.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.888922" elapsed="0.000265"/>
+<status status="PASS" start="2024-08-25T22:03:20.712068" elapsed="0.000534"/>
 </kw>
 <return>
 <value>${result}</value>
-<status status="PASS" start="2024-08-25T21:51:20.889258" elapsed="0.000037"/>
+<status status="PASS" start="2024-08-25T22:03:20.712726" elapsed="0.000067"/>
 </return>
 <arg>2</arg>
 <arg>3</arg>
 <doc>Berechnet die Summe von zwei Zahlen und gibt das Ergebnis zurück.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.888643" elapsed="0.000751"/>
+<status status="PASS" start="2024-08-25T22:03:20.711161" elapsed="0.001786"/>
 </kw>
 <kw name="Custom Greeting">
 <kw name="Log" owner="BuiltIn">
-<msg time="2024-08-25T21:51:20.889987" level="INFO">Hello, alo! Welcome to the testing framework.</msg>
+<msg time="2024-08-25T22:03:20.713840" level="INFO">Hello, alo! Welcome to the testing framework.</msg>
 <arg>Hello, ${name}! Welcome to the testing framework.</arg>
 <doc>Logs the given message with the given level.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.889824" elapsed="0.000209"/>
+<status status="PASS" start="2024-08-25T22:03:20.713627" elapsed="0.000280"/>
 </kw>
 <arg>alo</arg>
 <doc>Zeigt eine benutzerdefinierte Begrüßung im Terminal an.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.889566" elapsed="0.000546"/>
+<status status="PASS" start="2024-08-25T22:03:20.713261" elapsed="0.000744"/>
 </kw>
-<status status="PASS" start="2024-08-25T21:51:20.886248" elapsed="0.004011"/>
+<status status="PASS" start="2024-08-25T22:03:20.707352" elapsed="0.007231"/>
 </test>
 <kw name="Close Browser" owner="SeleniumLibrary" type="TEARDOWN">
 <doc>Closes the current browser.</doc>
-<status status="PASS" start="2024-08-25T21:51:20.890869" elapsed="0.382884"/>
+<status status="PASS" start="2024-08-25T22:03:20.715659" elapsed="0.395035"/>
 </kw>
-<status status="PASS" start="2024-08-25T21:51:16.544630" elapsed="4.729190"/>
+<status status="FAIL" start="2024-08-25T22:01:50.424415" elapsed="90.686347"/>
 </suite>
 <statistics>
 <total>
-<stat pass="1" fail="0" skip="0">All Tests</stat>
+<stat pass="1" fail="1" skip="0">All Tests</stat>
 </total>
 <tag>
 </tag>
 <suite>
-<stat pass="1" fail="0" skip="0" id="s1" name="Test">Test</stat>
+<stat pass="1" fail="1" skip="0" id="s1" name="Test">Test</stat>
 </suite>
 </statistics>
 <errors>
-<msg time="2024-08-25T21:51:16.541883" level="WARN">Error in file '/Users/philippoppel/Desktop/RobotGUI/test.robot' on line 47: The '[Return]' setting is deprecated. Use the 'RETURN' statement instead.</msg>
+<msg time="2024-08-25T22:01:50.421811" level="WARN">Error in file '/Users/philippoppel/Desktop/RobotGUI/test.robot' on line 47: The '[Return]' setting is deprecated. Use the 'RETURN' statement instead.</msg>
 </errors>
 </robot>
