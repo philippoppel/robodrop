@@ -1,7 +1,8 @@
-/* Grundlegende Styles */
+/* Grundlegende Styles für Dark Mode mit mehr Farbe */
 body {
   font-family: 'Roboto', sans-serif;
-  background-color: #eef2f7;
+  background-color: #2a2e35; /* Dunkler, neutraler Hintergrund */
+  color: #cfd8dc; /* Helle, leicht bläuliche Textfarbe */
   margin: 0;
   padding: 0;
   display: flex;
@@ -14,14 +15,15 @@ body {
 .container {
   width: 100%;
   height: 100%;
-  max-width: none; /* Vollbild */
+  max-width: none;
   display: flex;
   flex-direction: column;
+  margin: 0 auto;
 }
 
 .header {
-  background-color: #0066cc;
-  color: white;
+  background-color: #1f2b38; /* Sehr dunkler Header */
+  color: #eceff1;
   padding: 15px;
   display: flex;
   justify-content: space-between;
@@ -34,18 +36,15 @@ body {
 }
 
 .select-robot {
-  background-color: #ff8c00;
+  background-color: #f39c12;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
 }
 
 .select-robot:hover {
-  background-color: #ff7000;
+  background-color: #e67e22; /* Hellere Hover-Farbe */
   transform: scale(1.05);
 }
 
@@ -55,37 +54,39 @@ body {
   padding: 20px;
   box-sizing: border-box;
   overflow: hidden;
+  background-color: #27343b; /* Etwas heller als der Hintergrund */
 }
 
 .sidebar {
-  min-width: 200px; /* Mindestbreite der Sidebar */
-  max-width: 50%; /* Maximalbreite der Sidebar */
-  width: 300px; /* Anfangsbreite der Sidebar */
+  min-width: 200px;
+  max-width: 50%;
+  width: 300px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  flex-shrink: 0; /* verhindert, dass die Sidebar schrumpft */
-  transition: width 0.3s; /* Smooth transition bei Resize */
+  flex-shrink: 0;
+  background-color: #36434a; /* Abgetöntes Sidebar-Panel */
+  color: #cfd8dc;
 }
 
 .palette, .test-case-list-container {
-  background-color: #f0f4f8;
+  background-color: #3b4c56; /* Farblich abgehoben vom Sidebar-Hintergrund */
   padding: 20px;
   border-radius: 12px;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #4c5d73;
   overflow-y: auto;
   flex: 1;
 }
 
 .palette h3, .test-case-list-container h3, .workspace-container h3 {
   font-size: 18px;
-  color: #333;
+  color: #ffffff;
   margin-bottom: 15px;
 }
 
 .btn-add-keyword, .btn-add-test-case {
-  background-color: #28a745;
+  background-color: #2ecc71; /* Akzentfarbe Grün */
   color: white;
   border: none;
   padding: 12px;
@@ -103,7 +104,7 @@ body {
 }
 
 .btn-add-keyword:hover, .btn-add-test-case:hover {
-  background-color: #218838;
+  background-color: #27ae60; /* Hellere Hover-Farbe */
   transform: scale(1.05);
 }
 
@@ -112,33 +113,30 @@ body {
   display: flex;
   flex-direction: column;
   margin-left: 5px;
-  transition: none; /* Keine Übergangszeit */
-  will-change: transform, width; /* Hardwarebeschleunigung */
+  background-color: #3e4c55; /* Dunkler, aber deutlich abgesetzt */
+  padding: 10px;
+  overflow-y: auto; /* Scrollbar aktivieren, wenn der Inhalt zu groß ist */
+  height: 100%; /* Höhe auf 100% setzen, um den verfügbaren Platz auszunutzen */
+  box-sizing: border-box; /* Padding und Border in der Gesamthöhe berücksichtigen */
 }
 
 .workspace {
   flex: 1;
   padding: 20px;
-  background-color: #eaf4fc;
-  border: 2px dashed #ccc;
+  background-color: #45525d; /* Helleres Panel für Workspace */
+  border: 2px dashed #5a6a73; /* Dezente Abgrenzung */
   border-radius: 12px;
   min-height: 400px;
   margin-bottom: 20px;
-  overflow-y: auto;
+  overflow-y: auto; /* Scrollbar aktivieren innerhalb des Workspace */
 }
 
+
 .export-button {
-  background-color: #0066cc;
+  background-color: #2ecc71;
   color: white;
   border: none;
-  padding: 14px 24px;
-  border-radius: 8px;
-  font-size: 16px;
   cursor: pointer;
-  align-self: flex-end;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   transition: background-color 0.3s, transform 0.3s;
 }
 
@@ -147,34 +145,37 @@ body {
 }
 
 .export-button:hover {
-  background-color: #004da0;
+  background-color: #27ae60; /* Hellere Hover-Farbe */
   transform: scale(1.05);
 }
 
 /* Test Case Metadata */
-.test-case-metadata {
-  margin-bottom: 20px;
-}
-
 .test-case-metadata label {
-  display: block;
+  display: flex;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  color: #ffffff; /* Helle Textfarbe */
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
 }
 
-.test-case-metadata input, .test-case-metadata textarea {
-  width: 100%;
-  padding: 10px;
+.test-case-metadata input,
+.test-case-metadata textarea,
+.keyword-params input {
+  width: 80%;
+  padding: 8px;
   margin-bottom: 10px;
-  border: 1px solid #ccc;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 18px;
   border-radius: 4px;
-  background-color: #f9f9f9;
-  transition: border-color 0.3s, box-shadow 0.3s;
+  background-color: #3e4c55; /* Eingabefeld-Hintergrund */
+  color: #ecf0f1;
+  border: 1px solid #5a6a73;
 }
 
 .test-case-metadata input:focus, .test-case-metadata textarea:focus {
-  border-color: #0066cc;
-  box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
   outline: none;
 }
 
@@ -185,7 +186,7 @@ body {
 
 .draggable {
   padding: 10px 15px;
-  background-color: #e4e9f2;
+  background-color: #4c5d73; /* Hintergrund für Draggable Items */
   border-radius: 8px;
   margin-bottom: 10px;
   cursor: pointer;
@@ -193,33 +194,34 @@ body {
   justify-content: space-between;
   align-items: center;
   transition: background-color 0.3s;
+  color: #ecf0f1;
 }
 
 .draggable:hover {
-  background-color: #d1d8e5;
+  background-color: #576a7f; /* Hellere Hover-Farbe */
 }
 
 /* Highlighting and Clickable Effects for Test Case Items */
 .test-case-item {
   padding: 10px;
   margin-bottom: 5px;
-  background-color: #ffffff;
+  background-color: #4c5d73; /* Dunkler Hintergrund für Testfall-Items */
   border-radius: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  border: 1px solid #ccc;
+  border: 1px solid #5a6a73;
   transition: box-shadow 0.3s, background-color 0.3s;
 }
 
 .test-case-item.selected {
-  background-color: #d2f0f9;
+  background-color: #637a91; /* Leichte Hervorhebung */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .test-case-item:hover {
-  background-color: #e1f0f5;
+  background-color: #53687e; /* Hellere Hover-Farbe */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
@@ -239,28 +241,29 @@ body {
 .btn-duplicate, .btn-delete {
   background-color: transparent;
   border: none;
-  color: #666;
+  color: #95a5a6;
   font-size: 16px;
   cursor: pointer;
 }
 
 .btn-duplicate:hover, .btn-delete:hover {
-  color: #000;
+  color: #ecf0f1;
 }
 
 input[type="text"], textarea {
   padding: 10px;
   border-radius: 4px;
-  border: 1px solid #ccc;
+  border: 1px solid #5a6a73;
   font-size: 14px;
-  background-color: #f9f9f9;
+  background-color: #3e4c55;
+  color: #ecf0f1;
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border-color 0.3s, box-shadow 0.3s;
 }
 
 input[type="text"]:focus, textarea:focus {
-  border-color: #0066cc;
-  box-shadow: 0 0 5px rgba(0, 102, 204, 0.5);
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
   outline: none;
 }
 
@@ -270,16 +273,17 @@ input[type="text"]:focus, textarea:focus {
   margin-bottom: 15px;
   padding: 10px 15px;
   border-radius: 8px;
-  border: 2px solid #ccc;
+  border: 2px solid #5a6a73;
   font-size: 16px;
-  background-color: #fff;
+  background-color: #3e4c55;
+  color: #ecf0f1;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
   transition: box-shadow 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
 .palette input[type="text"]:focus {
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-  border-color: #4CAF50;
+  border-color: #3498db;
   outline: none;
 }
 
@@ -297,7 +301,8 @@ input[type="text"]:focus, textarea:focus {
 }
 
 .dialog-content {
-  background-color: #fff;
+  background-color: #3e4c55; /* Modaler Hintergrund */
+  color: #ecf0f1;
   padding: 20px;
   border-radius: 10px;
   width: 300px;
@@ -319,8 +324,10 @@ input[type="text"]:focus, textarea:focus {
   width: 100%;
   padding: 8px;
   margin-bottom: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #5a6a73;
   border-radius: 5px;
+  background-color: #45525d;
+  color: #ecf0f1;
 }
 
 .dialog-content button {
@@ -333,35 +340,57 @@ input[type="text"]:focus, textarea:focus {
 }
 
 .dialog-content .btn-confirm {
-  background-color: #28a745;
+  background-color: #2ecc71;
   color: white;
 }
 
 .dialog-content .btn-cancel {
-  background-color: #f44336;
+  background-color: #e74c3c;
   color: white;
 }
 
 .dialog-content .btn-confirm:hover {
-  background-color: #218838;
+  background-color: #27ae60;
 }
 
 .dialog-content .btn-cancel:hover {
-  background-color: #e53935;
+  background-color: #c0392b;
 }
 
 .header-buttons {
   display: flex;
-  gap: 10px;
+  gap: 10px; /* Abstand zwischen den Buttons */
+}
+
+.header-buttons button {
+  flex-grow: 1; /* Alle Buttons nehmen gleichmäßig Platz ein */
+  padding: 10px 20px; /* Einheitliche Polsterung */
+  font-size: 14px;
+  text-align: center;
+  border-radius: 6px; /* Einheitlicher Border-Radius */
+  width: 100%; /* Alle Buttons erhalten die gleiche Breite */
+}
+
+.header-buttons button:hover {
+  transform: scale(1.05); /* Einheitliches Hover-Verhalten */
+}
+
+.reset-state-button:hover {
+  background-color: #c0392b;
+}
+
+.select-robot:hover {
+  background-color: #e67e22;
+}
+
+.export-button:hover {
+  background-color: #27ae60;
 }
 
 .reset-state-button {
-  background-color: #dc3545;
+  background-color: #e74c3c;
   color: white;
   border: none;
-  padding: 10px 20px;
-  border-radius: 6px;
-  font-size: 14px;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.3s;
 }
@@ -371,15 +400,98 @@ input[type="text"]:focus, textarea:focus {
 }
 
 .reset-state-button:hover {
-  background-color: #c82333;
+  background-color: #c0392b;
   transform: scale(1.05);
 }
 
 .resize-bar {
   width: 5px;
-  background-color: #ccc;
+  background-color: #5a6a73; /* Dezente Farbvariante für Resize-Bar */
   cursor: ew-resize;
   position: relative;
+  transition: background-color 0.3s ease;
+}
+
+.resize-bar:hover {
+  background-color: #738897; /* Hellere Hover-Farbe */
+}
+
+.keyword-item {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 10px 20px;
+  background-color: #4c5d73;
+  border: 1px solid #5a6a73;
+  border-radius: 6px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, box-shadow 0.3s;
+  color: #ecf0f1;
+}
+
+.keyword-item:hover {
+  background-color: #576a7f;
+}
+
+.keyword-title {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.keyword-params {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+}
+
+.keyword-params input {
+  flex-grow: 1;
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #5a6a73;
+  background-color: #3e4c55;
+  color: #ecf0f1;
+  margin-top: 5px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.keyword-params input:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+  outline: none;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start;
+  margin-top: 10px;
+}
+
+.action-buttons button {
+  background-color: #45525d;
+  border: 1px solid #5a6a73;
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  color: #ecf0f1;
+}
+
+.action-buttons button:hover {
+  background-color: #576a7f;
+  transform: scale(1.05);
+}
+
+.action-buttons button:active {
+  transform: scale(0.95);
 }
 
 /* Responsive Design */
@@ -405,7 +517,6 @@ input[type="text"]:focus, textarea:focus {
     gap: 20px;
     flex-shrink: 0;
   }
-
 
   .workspace-container {
     width: 100%;

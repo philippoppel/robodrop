@@ -9,21 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const testCaseDoc = document.getElementById('test-case-doc');
 
   const resizeBar = document.getElementById('resize-bar');
-  const keywordPalette = document.getElementById('keyword-palette');
-  const editor = document.getElementById('editor');
+  const keywordPalette = document.querySelector('.sidebar');
+  const editor = document.querySelector('.workspace-container');
   let isResizing = false;
-
-  function debounce(func, wait) {
-    let timeout;
-    return function(...args) {
-      const later = () => {
-        clearTimeout(timeout);
-        func(...args);
-      };
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-    };
-  }
 
   resizeBar.addEventListener('mousedown', (e) => {
     isResizing = true;
@@ -31,20 +19,22 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.style.userSelect = 'none';
   });
 
-  document.addEventListener('mousemove', debounce((e) => {
+  document.addEventListener('mousemove', (e) => {
     if (!isResizing) return;
 
-    const containerOffsetLeft = document.querySelector('.container').offsetLeft;
-    const mouseX = e.clientX - containerOffsetLeft;
+    requestAnimationFrame(() => {
+      const containerOffsetLeft = document.querySelector('.container').offsetLeft;
+      const mouseX = e.clientX - containerOffsetLeft;
 
-    const minWidth = 200; // Mindestbreite der Sidebar
-    const maxWidth = window.innerWidth - 300; // Mindestbreite des Editors
+      const minWidth = 200; // Mindestbreite der Sidebar
+      const maxWidth = window.innerWidth - 300; // Mindestbreite des Editors
 
-    if (mouseX >= minWidth && mouseX <= maxWidth) {
-      keywordPalette.style.width = `${mouseX}px`;
-      editor.style.width = `${window.innerWidth - mouseX - 5}px`; // Direkt in Pixeln
-    }
-  }, 10)); // Debounce-Zeit von 10ms
+      if (mouseX >= minWidth && mouseX <= maxWidth) {
+        keywordPalette.style.width = `${mouseX}px`;
+        editor.style.flexGrow = 1;
+      }
+    });
+  });
 
   document.addEventListener('mouseup', () => {
     if (isResizing) {
