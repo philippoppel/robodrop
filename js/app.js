@@ -4,7 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const keywordFilter = document.getElementById('keywordFilter');
   let allKeywords = []; // Variable to store all keywords
   const workspace = document.getElementById('workspace');
-
+  let testCases = [];
+  let currentTestCaseId = null;
   selectRobotButton.addEventListener('click', () => {
     fileInput.click();
   });
@@ -15,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Call addKeywordButton to ensure the button is added to the palette
   addKeywordButton();
+  addTestCase();
+
   function handleFileUpload(event) {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -43,73 +46,51 @@ document.addEventListener('DOMContentLoaded', () => {
   function parseKeywords(content) {
     const keywords = [];
     const lines = content.split('\n');
-    let inKeywordsSection = false; // Track if we are in the *** Keywords *** section
+    let inKeywordsSection = false;
     let currentKeyword = null;
-    let currentComment = '';
-    let currentKey = null;
 
     lines.forEach(line => {
       const trimmedLine = line.trim();
 
-      // Check if we are entering the *** Keywords *** section
       if (trimmedLine === '*** Keywords ***') {
         inKeywordsSection = true;
-        currentComment = ''; // Reset for the start of the keywords section
-        return; // Skip processing this line
+        return;
       }
 
-      // Exit the keywords section when we hit a new section or end of file
       if (inKeywordsSection && (trimmedLine.startsWith('***') && trimmedLine.endsWith('***'))) {
         inKeywordsSection = false;
         return;
       }
 
-      if (!inKeywordsSection) {
-        return; // Skip lines that are not within the *** Keywords *** section
-      }
+      if (!inKeywordsSection) return;
 
-      if (trimmedLine.startsWith('#')) {
-        // Handle comments (preceding lines starting with '#')
-        currentComment += trimmedLine.slice(1).trim() + '\n';
-      } else if (trimmedLine === '') {
-        // Handle empty lines
-        currentComment = ''; // Reset for next keyword block
-      } else if (!line.startsWith(' ') && !line.startsWith('\t')) {
-        // Start of a new keyword
+      if (!line.startsWith(' ') && !line.startsWith('\t')) {
+        if (currentKeyword) {
+          keywords.push(currentKeyword);
+        }
         currentKeyword = {
           name: trimmedLine,
           args: [],
           steps: [],
-          values: {},
-          help: currentComment.trim()
+          returnValues: [],
+          help: '' // Stelle sicher, dass die `help`-Eigenschaft vorhanden ist
         };
-        keywords.push(currentKeyword);
-        currentComment = ''; // Reset comment after assigning to a keyword
-        currentKey = null;
       } else if (currentKeyword) {
-        // Handle keyword settings or steps
         if (trimmedLine.startsWith('[Arguments]')) {
-          currentKeyword.args = trimmedLine.split(/\s+/).slice(1); // Split arguments by whitespace and remove '[Arguments]'
-          currentKey = 'args';
+          currentKeyword.args = trimmedLine.split(/\s+/).slice(1); // Argumente auslesen
         } else if (trimmedLine.startsWith('[Documentation]')) {
-          currentKeyword.help += '\n' + trimmedLine.replace('[Documentation]', '').trim();
-          currentKey = 'help';
+          currentKeyword.help = trimmedLine.replace('[Documentation]', '').trim(); // Dokumentation in `help` speichern
         } else if (trimmedLine.startsWith('[Return]')) {
-          currentKeyword.returnValue = trimmedLine.split(/\s+/).slice(1); // Extract return values
-          currentKey = 'return';
-        } else if (currentKey === 'args' && /\$\{[^}]+}/.test(trimmedLine)) {
-          // Handle multiline arguments
-          const args = trimmedLine.match(/\$\{[^}]+}/g) || [];
-          currentKeyword.args.push(...args);
-        } else if (currentKey === 'help') {
-          // Append multiline documentation
-          currentKeyword.help += '\n' + trimmedLine;
+          currentKeyword.returnValues = trimmedLine.split(/\s+/).slice(1); // Rückgabewerte auslesen
         } else {
-          // Handle keyword steps
-          currentKeyword.steps.push(trimmedLine);
+          currentKeyword.steps.push(trimmedLine); // Schritte hinzufügen
         }
       }
     });
+
+    if (currentKeyword) {
+      keywords.push(currentKeyword);
+    }
 
     return keywords;
   }
@@ -243,23 +224,25 @@ document.addEventListener('DOMContentLoaded', () => {
     keywordContainer.innerHTML = ''; // Vorherige Keywords löschen
 
     keywords.forEach(keyword => {
+      if (!keyword.name) return;
+
       const keywordElement = document.createElement('div');
       keywordElement.className = 'draggable';
       keywordElement.draggable = true;
       keywordElement.textContent = keyword.name;
-      keywordElement.dataset.name = keyword.name;
-      keywordElement.dataset.args = JSON.stringify(keyword.args);
-      keywordElement.dataset.values = JSON.stringify(keyword.values);
-      keywordElement.dataset.help = keyword.help; // Hilfe-Text anhängen
 
-      // Fragezeichen-Symbol hinzufügen
+      keywordElement.dataset.name = keyword.name;
+      keywordElement.dataset.args = JSON.stringify(keyword.args || []); // Sicherstellen, dass args ein Array ist
+      keywordElement.dataset.values = JSON.stringify(keyword.values || {});
+      keywordElement.dataset.help = keyword.help || 'Keine Hilfe verfügbar'; // Setze einen Standardwert, wenn keine Hilfe vorhanden
+
       const helpIcon = document.createElement('i');
       helpIcon.className = 'fas fa-info-circle help-icon';
       helpIcon.style.marginLeft = '10px';
       helpIcon.style.cursor = 'pointer';
       helpIcon.title = 'Klicke für Hilfe';
       helpIcon.addEventListener('click', function () {
-        showHelpModal(keyword.help);
+        showHelpModal(keyword.help || 'Keine Hilfe verfügbar');
       });
 
       keywordElement.appendChild(helpIcon);
@@ -268,7 +251,6 @@ document.addEventListener('DOMContentLoaded', () => {
       keywordContainer.appendChild(keywordElement);
     });
 
-    // Füge den Button nach den Keywords hinzu
     addKeywordButton();
   }
 
@@ -282,12 +264,21 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function handleDragStart(e) {
-    e.dataTransfer.setData('text/plain', JSON.stringify({
-      name: e.target.dataset.name,
-      args: JSON.parse(e.target.dataset.args),
-      values: JSON.parse(e.target.dataset.values),
-      help: e.target.dataset.help // Include help text in transfer data
-    }));
+    const keywordName = e.target.dataset.name || '';
+    const keywordArgs = e.target.dataset.args || '[]'; // Default to an empty array if undefined
+    const keywordValues = e.target.dataset.values || '{}'; // Default to an empty object if undefined
+    const keywordHelp = e.target.dataset.help || '';
+
+    // Erstellen des Objekts mit abgesicherten Werten
+    const dataToTransfer = {
+      name: keywordName,
+      args: JSON.parse(keywordArgs),
+      values: JSON.parse(keywordValues),
+      help: keywordHelp
+    };
+
+    // Setze die Daten für den Drag-Vorgang
+    e.dataTransfer.setData('text/plain', JSON.stringify(dataToTransfer));
   }
 
   function showHelpModal(helpText) {
@@ -331,74 +322,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function handleDrop(e) {
     e.preventDefault();
-    const data = JSON.parse(e.dataTransfer.getData('text/plain'));
-    const newItem = document.createElement('div');
-    newItem.className = 'keyword-item';
 
-    // Create and append the keyword-title element
-    const keywordTitle = document.createElement('div');
-    keywordTitle.className = 'keyword-title';
-    keywordTitle.textContent = data.name;
-    newItem.appendChild(keywordTitle);
-
-    const paramsDiv = document.createElement('div');
-    paramsDiv.className = 'keyword-params';
-
-    // Determine the correct number of arguments based on the keyword
-    if (data.name === "Sum Two Numbers") {
-      data.args = ["${a}", "${b}"]; // Force two arguments
-    } else if (data.name === "Custom Greeting") {
-      data.args = ["${name}"]; // Force one argument
+    const rawData = e.dataTransfer.getData('text/plain');
+    if (!rawData) {
+      console.error('Leere oder ungültige Drag-and-Drop-Daten!');
+      return;
     }
 
-    data.args.forEach(arg => {
-      const inputContainer = document.createElement('div');
-      inputContainer.style.display = 'flex';
-      inputContainer.style.alignItems = 'center';
+    let data;
+    try {
+      data = JSON.parse(rawData);
+    } catch (error) {
+      console.error('Fehler beim Parsen der Drag-and-Drop-Daten:', error);
+      return;
+    }
 
-      // Create an input field for each argument with the variable name as placeholder
-      const customInput = document.createElement('input');
-      customInput.type = 'text';
-      customInput.placeholder = arg; // Set the placeholder to the variable name
-      customInput.style.marginLeft = '10px';
-      customInput.dataset.arg = arg;
-      customInput.classList.add('custom-input');
+    if (!data.name || !Array.isArray(data.args)) {
+      console.error('Fehlende oder ungültige Daten:', data);
+      return;
+    }
 
-      inputContainer.appendChild(customInput);
-      paramsDiv.appendChild(inputContainer);
+    const newItem = createCommandElement(data);
+    workspace.appendChild(newItem);
+
+    // Aktualisiere die tatsächlichen Eingabewerte (falls vom Benutzer geändert)
+    const argsValues = [];
+    newItem.querySelectorAll('input.custom-input').forEach(input => {
+      argsValues.push(input.value.trim());
     });
 
-    newItem.appendChild(paramsDiv);
-
-    // Action buttons (Move Up, Move Down, Delete)
-    const actionButtons = document.createElement('div');
-    actionButtons.className = 'action-buttons';
-
-    const moveUpButton = document.createElement('button');
-    moveUpButton.className = 'btn-move-up';
-    moveUpButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    moveUpButton.onclick = () => moveItem(newItem, -1);
-
-    const moveDownButton = document.createElement('button');
-    moveDownButton.className = 'btn-move-down';
-    moveDownButton.innerHTML = '<i class="fas fa-arrow-down"></i>';
-    moveDownButton.onclick = () => moveItem(newItem, 1);
-
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'btn-delete';
-    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteButton.onclick = () => newItem.remove();
-
-    actionButtons.appendChild(moveUpButton);
-    actionButtons.appendChild(moveDownButton);
-    actionButtons.appendChild(deleteButton);
-
-    newItem.appendChild(actionButtons);
-
-    workspace.appendChild(newItem);
+    const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+    if (selectedTestCase) {
+      selectedTestCase.commands.push({
+        ...data,
+        values: argsValues  // Speichern der tatsächlichen Eingabewerte
+      });
+    }
   }
-
-
   function moveItem(item, direction) {
     const items = Array.from(workspace.children);
     const index = items.indexOf(item);
@@ -413,84 +373,65 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function exportTestCase() {
-    const testCaseName = document.getElementById('test-case-name').value.trim();
-    const testCaseDoc = document.getElementById('test-case-doc').value.trim();
-    const items = workspace.querySelectorAll('.keyword-item');
     let newTestCases = '';
+    let isValid = true;
 
-    // Eingabevalidierung
-    if (!testCaseName) {
-      alert('Bitte geben Sie einen Namen für den Testfall ein.');
-      return;
-    }
+    testCases.forEach(testCase => {
+      const testCaseName = testCase.name.trim();
+      const testCaseDoc = testCase.doc.trim();
 
-    if (!testCaseDoc) {
-      alert('Bitte geben Sie eine Dokumentation für den Testfall ein.');
-      return;
-    }
-
-    if (items.length === 0) {
-      alert('Der Testfall muss mindestens einen Schritt enthalten.');
-      return;
-    }
-
-    // Füge den Testfallnamen und die Dokumentation hinzu
-    newTestCases += `${testCaseName}\n    [Documentation]    ${testCaseDoc}\n`;
-
-    for (const item of items) {
-      const titleElement = item.querySelector('.keyword-title');
-      const expectedArgs = JSON.parse(titleElement.dataset.args || '[]'); // Erwartete Argumente
-
-      if (titleElement) {
-        let command = `    ${titleElement.textContent}`;
-        const inputs = item.querySelectorAll('input.custom-input');
-
-        // Überprüfe, ob alle Argumente gesetzt sind
-        const missingArgs = [];
-        inputs.forEach((input, index) => {
-          const inputValue = input.value.trim();
-          if (inputValue === '') {
-            missingArgs.push(expectedArgs[index]);
-          } else {
-            command += `    ${inputValue}`;
-          }
-        });
-
-        if (missingArgs.length > 0) {
-          alert(`Das Keyword "${titleElement.textContent}" erfordert das Setzen der folgenden Argumente: ${missingArgs.join(', ')}`);
-          return;
-        }
-
-        newTestCases += `${command}\n`;
-      } else {
-        alert('Ein Keyword-Titel fehlt. Bitte überprüfen Sie den Testfall.');
+      if (!testCaseName) {
+        alert('Einer der Testfälle hat keinen Namen. Bitte geben Sie jedem Testfall einen Namen.');
+        isValid = false;
         return;
       }
+
+      if (!testCaseDoc) {
+        alert(`Der Testfall "${testCaseName}" hat keine Dokumentation. Bitte geben Sie eine Dokumentation an.`);
+        isValid = false;
+        return;
+      }
+
+      if (testCase.commands.length === 0) {
+        alert(`Der Testfall "${testCaseName}" enthält keine Schritte. Bitte fügen Sie Schritte hinzu.`);
+        isValid = false;
+        return;
+      }
+
+      newTestCases += `${testCaseName}\n    [Documentation]    ${testCaseDoc}\n`;
+
+      testCase.commands.forEach(command => {
+        let commandLine = `    ${command.name}`;
+        command.args.forEach((arg, index) => {
+          // Verwende den tatsächlich eingegebenen Wert oder den Platzhalter
+          const value = command.values && command.values[index] ? command.values[index] : arg;
+          commandLine += `    ${value}`;
+        });
+        newTestCases += `${commandLine}\n`;
+      });
+
+      newTestCases += '\n'; // Leere Zeile zwischen Testfällen
+    });
+
+    if (!isValid) {
+      return; // Breche den Export ab, wenn die Validierung fehlschlägt
     }
 
-    // Überprüfe, ob tatsächlich Testschritte vorhanden sind
-    if (newTestCases.trim() === `${testCaseName}\n    [Documentation]    ${testCaseDoc}`) {
-      alert('Es wurden keine Testschritte hinzugefügt. Der Testfall kann nicht exportiert werden.');
-      return;
-    }
-
-    // Den Inhalt des hochgeladenen Files abrufen
     const fileContent = localStorage.getItem('uploadedFileContent') || '';
-    const updatedContent = appendTestCaseToFile(fileContent, newTestCases);
+    const updatedContent = appendTestCaseToFile(fileContent, newTestCases.trim());
 
     downloadTestCase(updatedContent);
   }
-
   function appendTestCaseToFile(fileContent, newTestCases) {
-    // Füge das Keyword am Ende der "*** Keywords ***"-Sektion hinzu
     let customKeywords = '';
 
     allKeywords.forEach(keyword => {
-      if (keyword.help.startsWith('TODO')) {
-        customKeywords += `\n${keyword.name}\n    [Documentation]    ${keyword.help}`;
+      const helpText = keyword.help || ''; // Sicherstellen, dass help definiert ist
+      if (helpText.startsWith('TODO')) {
+        customKeywords += `\n${keyword.name}\n    Log    ${helpText}`;
         if (keyword.args.length > 0) {
           // Argumente korrekt als Variablen formatiert ausgeben
-          const formattedArgs = keyword.args.map(arg => `\${${arg}}`).join('    ');
+          const formattedArgs = keyword.args.join('    ');
           customKeywords += `\n    [Arguments]    ${formattedArgs}`;
         }
         customKeywords += '\n\n'; // Füge zwei Leerzeilen nach jedem Keyword hinzu
@@ -510,8 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return fileContent + '\n\n*** Test Cases ***\n' + newTestCases.trim() + '\n';
   }
 
-
-
   function downloadTestCase(content) {
     const blob = new Blob([content], { type: 'text/plain' });
     const anchor = document.createElement('a');
@@ -523,7 +462,6 @@ document.addEventListener('DOMContentLoaded', () => {
     anchor.click();
     document.body.removeChild(anchor);
   }
-
 
   function addKeywordButton() {
     const keywordContainer = document.getElementById('keywords');
@@ -583,10 +521,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function addCustomKeyword(name, description, args) {
+    const formattedArgs = args.map(arg => `\${${arg}}`); // Argumente als ${arg} formatieren
     const newKeyword = {
       name: name,
-      args: args, // Verwende die bereinigten Argumente
-      steps: [],
+      args: formattedArgs, // Verwende die formatierten Argumente
+      steps: [`Log    Hello, ${formattedArgs.join(' and ')}! Welcome to the testing framework.`],
       values: {},
       help: `TODO: ${description}`
     };
@@ -595,6 +534,248 @@ document.addEventListener('DOMContentLoaded', () => {
     renderKeywords(allKeywords); // Palette aktualisieren
   }
 
+  function addTestCase() {
+    const id = `test-case-${Date.now()}`;
+    const newTestCase = {
+      id,
+      name: '',
+      doc: '',
+      commands: []
+    };
+
+    testCases.push(newTestCase);
+    renderTestCaseList();
+    selectTestCase(id);
+  }
+
+
+  function renderTestCaseList() {
+    const testCaseList = document.getElementById('test-case-list');
+    testCaseList.innerHTML = '';
+
+    testCases.forEach(testCase => {
+      const testCaseItem = document.createElement('div');
+      testCaseItem.className = 'test-case-item';
+      if (testCase.id === currentTestCaseId) {
+        testCaseItem.classList.add('selected');
+      }
+
+      testCaseItem.textContent = testCase.name || 'Neuer Testfall';
+
+      const actions = document.createElement('div');
+      actions.className = 'test-case-actions';
+
+      const duplicateBtn = document.createElement('button');
+      duplicateBtn.className = 'btn-duplicate';
+      duplicateBtn.innerHTML = '<i class="fas fa-copy"></i>';
+      duplicateBtn.onclick = (e) => {
+        e.stopPropagation();
+        duplicateTestCase(testCase.id);
+      };
+
+      const deleteBtn = document.createElement('button');
+      deleteBtn.className = 'btn-delete';
+      deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+      deleteBtn.onclick = (e) => {
+        e.stopPropagation();
+        deleteTestCase(testCase.id);
+      };
+
+      actions.appendChild(duplicateBtn);
+      actions.appendChild(deleteBtn);
+      testCaseItem.appendChild(actions);
+
+      testCaseItem.onclick = () => selectTestCase(testCase.id);
+      testCaseList.appendChild(testCaseItem);
+    });
+  }
+
+  function selectTestCase(id) {
+    // Speichere die aktuellen Eingabewerte des aktuellen Testfalls
+    if (currentTestCaseId) {
+      const currentTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+      if (currentTestCase) {
+        saveCurrentTestCaseValues(currentTestCase);
+      }
+    }
+
+    currentTestCaseId = id;
+    const selectedTestCase = testCases.find(testCase => testCase.id === id);
+
+    if (selectedTestCase) {
+      document.getElementById('test-case-name').value = selectedTestCase.name;
+      document.getElementById('test-case-doc').value = selectedTestCase.doc;
+      renderTestCaseCommands(selectedTestCase.commands);
+      renderTestCaseList();
+    }
+  }
+
+  function saveCurrentTestCaseValues(testCase) {
+    const workspaceItems = document.querySelectorAll('.keyword-item');
+
+    workspaceItems.forEach((item, index) => {
+      const command = testCase.commands[index];
+      if (command) {
+        const inputs = item.querySelectorAll('input.custom-input');
+        command.values = Array.from(inputs).map(input => input.value.trim());
+      }
+    });
+  }
+
+
+
+
+  function duplicateTestCase(id) {
+    const testCaseToDuplicate = testCases.find(testCase => testCase.id === id);
+
+    // Speicher die aktuellen Eingabewerte, bevor der Testfall dupliziert wird
+    if (currentTestCaseId === id) {
+      saveCurrentTestCaseValues(testCaseToDuplicate);
+    }
+
+    if (testCaseToDuplicate) {
+      let newName = `${testCaseToDuplicate.name} (Kopie)`;
+      let counter = 1;
+      while (testCases.some(tc => tc.name === newName)) {
+        newName = `${testCaseToDuplicate.name} (Kopie ${counter++})`;
+      }
+
+      const duplicate = {
+        ...testCaseToDuplicate,
+        id: `test-case-${Date.now()}`,
+        name: newName,
+        commands: testCaseToDuplicate.commands.map(cmd => ({
+          ...cmd,
+          values: cmd.values ? [...cmd.values] : [] // Werte kopieren, sicherstellen, dass sie existieren
+        }))
+      };
+
+      // Konsolenüberprüfung
+      console.log('Original:', testCaseToDuplicate);
+      console.log('Duplicate:', duplicate);
+
+      testCases.push(duplicate);
+      renderTestCaseList();
+      selectTestCase(duplicate.id);
+    }
+  }
+
+  function deleteTestCase(id) {
+    testCases = testCases.filter(testCase => testCase.id !== id);
+    if (currentTestCaseId === id) {
+      currentTestCaseId = null;
+      clearTestCaseEditor();
+    }
+    renderTestCaseList();
+  }
+
+
+  function clearTestCaseEditor() {
+    document.getElementById('test-case-name').value = '';
+    document.getElementById('test-case-doc').value = '';
+    document.getElementById('workspace').innerHTML = '';
+  }
+
+
+  function renderTestCaseCommands(commands) {
+    const workspace = document.getElementById('workspace');
+    workspace.innerHTML = ''; // Clear the current workspace
+
+    commands.forEach(command => {
+      const newItem = createCommandElement(command);
+      workspace.appendChild(newItem);
+    });
+  }
+
+
+  function createCommandElement(command) {
+    const newItem = document.createElement('div');
+    newItem.className = 'keyword-item';
+
+    const keywordTitle = document.createElement('div');
+    keywordTitle.className = 'keyword-title';
+    keywordTitle.textContent = command.name;
+    newItem.appendChild(keywordTitle);
+
+    const paramsDiv = document.createElement('div');
+    paramsDiv.className = 'keyword-params';
+
+    command.args.forEach((arg, index) => {
+      const inputContainer = document.createElement('div');
+      inputContainer.style.display = 'flex';
+      inputContainer.style.alignItems = 'center';
+
+      const customInput = document.createElement('input');
+      customInput.type = 'text';
+      customInput.placeholder = arg;
+      customInput.style.marginLeft = '10px';
+      customInput.dataset.arg = arg;
+      customInput.classList.add('custom-input');
+
+      // Lade den gespeicherten Wert oder zeige den Platzhalter an
+      customInput.value = command.values && command.values[index] ? command.values[index] : '';
+
+      inputContainer.appendChild(customInput);
+      paramsDiv.appendChild(inputContainer);
+    });
+
+    newItem.appendChild(paramsDiv);
+
+    // Action buttons
+    const actionButtons = document.createElement('div');
+    actionButtons.className = 'action-buttons';
+
+    const moveUpButton = document.createElement('button');
+    moveUpButton.className = 'btn-move-up';
+    moveUpButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    moveUpButton.onclick = () => moveItem(newItem, -1);
+
+    const moveDownButton = document.createElement('button');
+    moveDownButton.className = 'btn-move-down';
+    moveDownButton.innerHTML = '<i class="fas fa-arrow-down"></i>';
+    moveDownButton.onclick = () => moveItem(newItem, 1);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'btn-delete';
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteButton.onclick = () => {
+      newItem.remove();
+      const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+      if (selectedTestCase) {
+        selectedTestCase.commands = selectedTestCase.commands.filter(cmd => cmd !== command);
+      }
+    };
+
+    actionButtons.appendChild(moveUpButton);
+    actionButtons.appendChild(moveDownButton);
+    actionButtons.appendChild(deleteButton);
+
+    newItem.appendChild(actionButtons);
+
+    return newItem;
+  }
+  function escapeInputValue(value) {
+    // Diese Funktion sorgt dafür, dass alle speziellen Zeichen wie "${}" korrekt escaped werden
+    return value.replace(/[\$\{\}]/g, '\\$&');
+  }
+
+
+  document.getElementById('add-test-case').addEventListener('click', addTestCase);
+
+  document.getElementById('test-case-name').addEventListener('input', (e) => {
+    const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+    if (selectedTestCase) {
+      selectedTestCase.name = e.target.value;
+      renderTestCaseList();
+    }
+  });
+
+  document.getElementById('test-case-doc').addEventListener('input', (e) => {
+    const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+    if (selectedTestCase) {
+      selectedTestCase.doc = e.target.value;
+    }
+  });
 
 
 

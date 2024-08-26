@@ -11,3 +11,4 @@ Read port: 52100
 1724613050014	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 UNSUPPORTED (log once): POSSIBLE ISSUE: unit 1 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
 DevTools listening on ws://127.0.0.1:52087/devtools/browser/c77bc571-a596-4f04-b5d9-bf968e7ed303
+1724629390955	Marionette	INFO	Stopped listening on port 52100

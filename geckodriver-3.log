@@ -11,3 +11,5 @@ WebDriver BiDi listening on ws://127.0.0.1:52624
 1724613487667	RemoteAgent	WARN	TLS certificate errors will be ignored for this session
 UNSUPPORTED (log once): POSSIBLE ISSUE: unit 1 GLD_TEXTURE_INDEX_2D is unloadable and bound to sampler type (Float) - using zero texture because texture unloadable
 DevTools listening on ws://127.0.0.1:52624/devtools/browser/d4dde13d-1fce-4638-9a1a-97fdfc6c57b2
+1724629390859	Marionette	INFO	Stopped listening on port 52629
+console.warn: TopSitesFeed: Failed to fetch data from Contile server: NetworkError when attempting to fetch resource.

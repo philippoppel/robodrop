@@ -457,3 +457,67 @@ body {
 .keyword-filter {
   margin-bottom: 10px;
 }
+
+/* Stil für die Testfall-Liste und deren Buttons */
+.test-case-list-container {
+  margin-right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+#test-case-list {
+  margin-bottom: 20px;
+  border: 1px solid #ccc;
+  padding: 10px;
+  width: 200px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.test-case-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  margin-bottom: 5px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+}
+
+.test-case-item.selected {
+  background-color: #e0f7fa;
+}
+
+.test-case-item .test-case-actions {
+  display: none;
+}
+
+.test-case-item:hover .test-case-actions {
+  display: inline-block;
+}
+
+.btn-add-test-case {
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.btn-duplicate,
+.btn-delete {
+  background-color: transparent;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  margin-left: 5px;
+}
+
+.btn-duplicate:hover,
+.btn-delete:hover {
+  color: #000;
+}
