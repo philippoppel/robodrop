@@ -7,6 +7,52 @@ document.addEventListener('DOMContentLoaded', () => {
   const workspace = document.getElementById('workspace');
   const testCaseName = document.getElementById('test-case-name');
   const testCaseDoc = document.getElementById('test-case-doc');
+
+  const resizeBar = document.getElementById('resize-bar');
+  const keywordPalette = document.getElementById('keyword-palette');
+  const editor = document.getElementById('editor');
+  let isResizing = false;
+
+  function debounce(func, wait) {
+    let timeout;
+    return function(...args) {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  }
+
+  resizeBar.addEventListener('mousedown', (e) => {
+    isResizing = true;
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  });
+
+  document.addEventListener('mousemove', debounce((e) => {
+    if (!isResizing) return;
+
+    const containerOffsetLeft = document.querySelector('.container').offsetLeft;
+    const mouseX = e.clientX - containerOffsetLeft;
+
+    const minWidth = 200; // Mindestbreite der Sidebar
+    const maxWidth = window.innerWidth - 300; // Mindestbreite des Editors
+
+    if (mouseX >= minWidth && mouseX <= maxWidth) {
+      keywordPalette.style.width = `${mouseX}px`;
+      editor.style.width = `${window.innerWidth - mouseX - 5}px`; // Direkt in Pixeln
+    }
+  }, 10)); // Debounce-Zeit von 10ms
+
+  document.addEventListener('mouseup', () => {
+    if (isResizing) {
+      isResizing = false;
+      document.body.style.cursor = 'default';
+      document.body.style.userSelect = 'auto';
+    }
+  });
   let allKeywords = [], testCases = [], currentTestCaseId = null;
   document.querySelector('.export-button').addEventListener('click', exportTestCase);
 

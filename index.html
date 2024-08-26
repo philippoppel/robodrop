@@ -18,7 +18,7 @@
     </div>
   </header>
   <main class="editor">
-    <aside class="sidebar">
+    <aside class="sidebar" id="keyword-palette">
       <section class="palette">
         <h3><i class="fas fa-list"></i> Keyword-Palette</h3>
         <input type="text" id="keywordFilter" placeholder="Keyword filtern..." class="keyword-filter">
@@ -31,7 +31,8 @@
         <button id="add-test-case" class="btn-add-test-case"><i class="fas fa-plus"></i> Neuer Testfall</button>
       </section>
     </aside>
-    <section class="workspace-container">
+    <div class="resize-bar" id="resize-bar"></div>
+    <section class="workspace-container" id="editor">
       <h3><i class="fas fa-edit"></i> Testfall-Editor</h3>
       <div class="test-case-metadata">
         <label for="test-case-name">Testfall-Name:</label>

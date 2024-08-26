@@ -54,15 +54,18 @@ body {
   flex: 1;
   padding: 20px;
   box-sizing: border-box;
-  overflow: hidden; /* Überlappungen verhindern */
+  overflow: hidden;
 }
 
 .sidebar {
-  width: 300px;
+  min-width: 200px; /* Mindestbreite der Sidebar */
+  max-width: 50%; /* Maximalbreite der Sidebar */
+  width: 300px; /* Anfangsbreite der Sidebar */
   display: flex;
   flex-direction: column;
   gap: 20px;
   flex-shrink: 0; /* verhindert, dass die Sidebar schrumpft */
+  transition: width 0.3s; /* Smooth transition bei Resize */
 }
 
 .palette, .test-case-list-container {
@@ -108,7 +111,9 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  margin-left: 20px; /* Abstand zur Sidebar */
+  margin-left: 5px;
+  transition: none; /* Keine Übergangszeit */
+  will-change: transform, width; /* Hardwarebeschleunigung */
 }
 
 .workspace {
@@ -370,6 +375,12 @@ input[type="text"]:focus, textarea:focus {
   transform: scale(1.05);
 }
 
+.resize-bar {
+  width: 5px;
+  background-color: #ccc;
+  cursor: ew-resize;
+  position: relative;
+}
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -386,10 +397,15 @@ input[type="text"]:focus, textarea:focus {
   }
 
   .sidebar {
-    width: 100%;
-    margin-right: 0;
-    margin-bottom: 20px;
+    min-width: 200px;
+    max-width: 50%;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex-shrink: 0;
   }
+
 
   .workspace-container {
     width: 100%;
