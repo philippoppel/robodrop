@@ -8,41 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const testCaseName = document.getElementById('test-case-name');
   const testCaseDoc = document.getElementById('test-case-doc');
 
-  const resizeBar = document.getElementById('resize-bar');
-  const keywordPalette = document.querySelector('.sidebar');
-  const editor = document.querySelector('.workspace-container');
-  let isResizing = false;
-
-  resizeBar.addEventListener('mousedown', (e) => {
-    isResizing = true;
-    document.body.style.cursor = 'ew-resize';
-    document.body.style.userSelect = 'none';
-  });
-
-  document.addEventListener('mousemove', (e) => {
-    if (!isResizing) return;
-
-    requestAnimationFrame(() => {
-      const containerOffsetLeft = document.querySelector('.container').offsetLeft;
-      const mouseX = e.clientX - containerOffsetLeft;
-
-      const minWidth = 200; // Mindestbreite der Sidebar
-      const maxWidth = window.innerWidth - 300; // Mindestbreite des Editors
-
-      if (mouseX >= minWidth && mouseX <= maxWidth) {
-        keywordPalette.style.width = `${mouseX}px`;
-        editor.style.flexGrow = 1;
-      }
-    });
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (isResizing) {
-      isResizing = false;
-      document.body.style.cursor = 'default';
-      document.body.style.userSelect = 'auto';
-    }
-  });
   let allKeywords = [], testCases = [], currentTestCaseId = null;
   document.querySelector('.export-button').addEventListener('click', exportTestCase);
 
@@ -55,6 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
   setInterval(() => {
     saveState();
   }, 10000);
+
+
+
 
   workspace.addEventListener('dragover', (e) => e.preventDefault());
 
@@ -107,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
     keywordContainer.innerHTML = ''; // Vorherige Keywords löschen
 
     keywords.forEach(keyword => {
-      // Skip empty or undefined keyword names
       if (!keyword.name || keyword.name.trim() === '') return;
 
       const keywordElement = document.createElement('div');
@@ -116,22 +83,50 @@ document.addEventListener('DOMContentLoaded', () => {
       keywordElement.textContent = keyword.name;
 
       keywordElement.dataset.name = keyword.name;
-      keywordElement.dataset.args = JSON.stringify(keyword.args || []); // Sicherstellen, dass args ein Array ist
+      keywordElement.dataset.args = JSON.stringify(keyword.args || []);
       keywordElement.dataset.values = JSON.stringify(keyword.values || {});
-      keywordElement.dataset.help = keyword.help || 'Keine Hilfe verfügbar'; // Setze einen Standardwert, wenn keine Hilfe vorhanden
+      keywordElement.dataset.help = keyword.help || 'Keine Hilfe verfügbar';
 
-      const helpIcon = document.createElement('i');
-      helpIcon.className = 'fas fa-info-circle help-icon';
-      helpIcon.style.marginLeft = '10px';
-      helpIcon.style.cursor = 'pointer';
+      const actionButtons = document.createElement('div');
+      actionButtons.className = 'action-buttons';
+
+      // Tooltip Container
+      const tooltipContainer = document.createElement('div');
+      tooltipContainer.className = 'tooltip-container';
+
+      // Info-Icon Button
+      const helpIcon = document.createElement('button');
+      helpIcon.className = 'btn-info';
+      helpIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
       helpIcon.title = 'Klicke für Hilfe';
-      helpIcon.addEventListener('click', function () {
-        showHelpModal(keyword.help || 'Keine Hilfe verfügbar');
+
+      // Tooltip Content
+      const tooltipContent = document.createElement('div');
+      tooltipContent.className = 'tooltip-content';
+      tooltipContent.textContent = keyword.help || 'Keine Hilfe verfügbar';
+
+      tooltipContainer.appendChild(helpIcon);
+      tooltipContainer.appendChild(tooltipContent);
+
+
+      const deleteButton = document.createElement('button');
+      deleteButton.className = 'btn-delete';
+      deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+      deleteButton.title = 'Löschen';
+      deleteButton.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (confirm(`Möchten Sie das Keyword "${keyword.name}" wirklich löschen?`)) {
+          allKeywords = allKeywords.filter(k => k !== keyword);
+          renderKeywords(allKeywords);
+          saveState();
+        }
       });
 
-      keywordElement.appendChild(helpIcon);
-      keywordElement.addEventListener('dragstart', handleDragStart);
+      actionButtons.appendChild(tooltipContainer);
+      actionButtons.appendChild(deleteButton);
+      keywordElement.appendChild(actionButtons);
 
+      keywordElement.addEventListener('dragstart', handleDragStart);
       keywordContainer.appendChild(keywordElement);
     });
   }

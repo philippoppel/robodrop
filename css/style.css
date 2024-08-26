@@ -50,33 +50,37 @@ body {
 
 .editor {
   display: flex;
-  flex: 1;
+  height: 100vh; /* Vollbildhöhe */
   padding: 20px;
   box-sizing: border-box;
-  overflow: hidden;
-  background-color: #27343b; /* Etwas heller als der Hintergrund */
+  background-color: #27343b; /* Hintergrundfarbe */
 }
 
 .sidebar {
-  min-width: 200px;
-  max-width: 50%;
-  width: 300px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
-  flex-shrink: 0;
-  background-color: #36434a; /* Abgetöntes Sidebar-Panel */
-  color: #cfd8dc;
+  justify-content: space-between; /* Gleiche Verteilung der Boxen */
+  width: 30%; /* Sidebar nimmt 30% der Breite ein */
+  min-width: 300px;
+  max-width: 400px; /* Beschränke die maximale Breite */
+  margin-right: 20px; /* Abstand zum Editor */
 }
 
 .palette, .test-case-list-container {
-  background-color: #3b4c56; /* Farblich abgehoben vom Sidebar-Hintergrund */
+  flex: 1; /* Gleiche Höhe für beide Boxen */
+  background-color: #3b4c56;
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   border: 1px solid #4c5d73;
+  margin-bottom: 20px; /* Abstand zwischen den Boxen */
+}
+
+.test-case-list-container {
+  flex: none; /* Entfernt die automatische Höhenanpassung */
+  height: 200px; /* Setzt die Höhe auf 200px, passe nach Bedarf an */
+  margin-bottom: 20px; /* Abstand zwischen den Boxen */
   overflow-y: auto;
-  flex: 1;
 }
 
 .palette h3, .test-case-list-container h3, .workspace-container h3 {
@@ -109,26 +113,22 @@ body {
 }
 
 .workspace-container {
-  flex: 1;
+  flex: 1; /* Füllt den restlichen Platz aus */
   display: flex;
   flex-direction: column;
-  margin-left: 5px;
-  background-color: #3e4c55; /* Dunkler, aber deutlich abgesetzt */
-  padding: 10px;
-  overflow-y: auto; /* Scrollbar aktivieren, wenn der Inhalt zu groß ist */
-  height: 100%; /* Höhe auf 100% setzen, um den verfügbaren Platz auszunutzen */
-  box-sizing: border-box; /* Padding und Border in der Gesamthöhe berücksichtigen */
+  background-color: #3e4c55;
+  padding: 20px;
+  border-radius: 12px;
+  box-sizing: border-box;
 }
 
 .workspace {
-  flex: 1;
-  padding: 20px;
-  background-color: #45525d; /* Helleres Panel für Workspace */
-  border: 2px dashed #5a6a73; /* Dezente Abgrenzung */
+  flex: 1; /* Der Editor füllt den restlichen Platz aus */
+  background-color: #45525d;
+  border: 2px dashed #5a6a73;
   border-radius: 12px;
-  min-height: 400px;
-  margin-bottom: 20px;
-  overflow-y: auto; /* Scrollbar aktivieren innerhalb des Workspace */
+  padding: 20px;
+  overflow-y: auto;
 }
 
 
@@ -185,21 +185,36 @@ body {
 }
 
 .draggable {
+  position: relative; /* Positionierung für die Aktionsbuttons */
   padding: 10px 15px;
-  background-color: #4c5d73; /* Hintergrund für Draggable Items */
+  background-color: #4c5d73;
   border-radius: 8px;
   margin-bottom: 10px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: center; /* Buttons vertikal zentrieren */
   transition: background-color 0.3s;
   color: #ecf0f1;
 }
 
-.draggable:hover {
-  background-color: #576a7f; /* Hellere Hover-Farbe */
+.draggable .action-buttons {
+  display: none; /* Standardmäßig ausgeblendet */
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%); /* Buttons vertikal zentrieren */
+  gap: 5px;
 }
+
+.draggable:hover {
+  background-color: #576a7f;
+}
+
+.draggable:hover .action-buttons {
+  display: flex; /* Buttons werden beim Hover angezeigt */
+}
+
 
 /* Highlighting and Clickable Effects for Test Case Items */
 .test-case-item {
@@ -269,7 +284,7 @@ input[type="text"]:focus, textarea:focus {
 
 /* Verschönertes Keyword-Filter-Input */
 .palette input[type="text"] {
-  width: 85%;
+  width: 91%;
   margin-bottom: 15px;
   padding: 10px 15px;
   border-radius: 8px;
@@ -286,6 +301,7 @@ input[type="text"]:focus, textarea:focus {
   border-color: #3498db;
   outline: none;
 }
+
 
 .dialog-overlay {
   position: fixed;
@@ -405,11 +421,11 @@ input[type="text"]:focus, textarea:focus {
 }
 
 .resize-bar {
-  width: 5px;
   background-color: #5a6a73; /* Dezente Farbvariante für Resize-Bar */
   cursor: ew-resize;
   position: relative;
   transition: background-color 0.3s ease;
+  z-index: 1;  /* Setze sicherheitshalber einen niedrigen z-index */
 }
 
 .resize-bar:hover {
@@ -472,27 +488,71 @@ input[type="text"]:focus, textarea:focus {
   display: flex;
   gap: 10px;
   justify-content: flex-start;
-  margin-top: 10px;
+  margin-top: 0px;
 }
 
 .action-buttons button {
-  background-color: #45525d;
-  border: 1px solid #5a6a73;
-  border-radius: 4px;
-  padding: 6px;
+  background-color: transparent;
+  border: none;
+  color: #95a5a6;
+  font-size: 14px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  color: #ecf0f1;
+  padding: 5px;
+  border-radius: 4px;
 }
 
 .action-buttons button:hover {
-  background-color: #576a7f;
-  transform: scale(1.05);
+  color: #ecf0f1;
+  background-color: #2c3e50;
 }
 
 .action-buttons button:active {
   transform: scale(0.95);
 }
+
+.tooltip-container {
+  position: relative;
+  display: inline-block;
+  z-index: 1000;
+}
+
+.tooltip-content {
+  visibility: hidden;
+  width: 200px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  border-radius: 6px;
+  padding: 10px;
+  position: absolute; /* Von fixed zu absolute geändert */
+  bottom: 125%; /* Positionierung oberhalb des Tooltip-Containers */
+  left: 50%;
+  transform: translateX(-50%);
+  opacity: 0;
+  transition: opacity 0.3s, visibility 0.3s;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+
+.tooltip-container:hover .tooltip-content {
+  visibility: visible;
+  opacity: 1;
+}
+
+.tooltip-container .tooltip-content::after {
+  content: '';
+  position: absolute;
+  top: 100%; /* Positionierung des Pfeils unterhalb des Tooltips */
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent; /* Pfeil in der gleichen Farbe wie der Tooltip-Hintergrund */
+}
+
+
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -516,6 +576,8 @@ input[type="text"]:focus, textarea:focus {
     flex-direction: column;
     gap: 20px;
     flex-shrink: 0;
+    overflow: visible; /* Ensure tooltips aren't clipped */
+    position: relative; /* Necessary for absolute positioning within this container */
   }
 
   .workspace-container {
