@@ -3,44 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Robot Framework Drag-and-Drop Editor</title>
+  <title>Robot Framework Editor</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 <div class="container">
-  <div class="header">
-    <h1><i class="fas fa-robot"></i> Robot Framework Drag-and-Drop Editor</h1>
-    <div class="file-buttons">
-      <button class="select-robot"><i class="fas fa-file-alt"></i>Upload File</button>
-      <input type="file" id="fileInput" accept=".robot" style="display: none;">
-    </div>
-  </div>
-  <div class="editor">
-    <div class="palette">
-      <h3><i class="fas fa-list"></i> Keyword-Palette</h3>
-      <input type="text" id="keywordFilter" placeholder="Keyword filtern..." class="keyword-filter">
-      <div id="keywords"></div>
-    </div>
-    <div class="test-case-list-container">
-      <h3><i class="fas fa-list"></i> Testfall-Liste</h3>
-      <div id="test-case-list"></div>
-      <button id="add-test-case" class="btn-add-test-case"><i class="fas fa-plus"></i> Neuer Testfall</button>
-    </div>
-    <div class="workspace-container">
+  <header class="header">
+    <h1><i class="fas fa-robot"></i> Robot Framework Editor</h1>
+    <button class="select-robot"><i class="fas fa-file-alt"></i> Upload File</button>
+    <input type="file" id="fileInput" accept=".robot" style="display: none;">
+  </header>
+  <main class="editor">
+    <aside class="sidebar">
+      <section class="palette">
+        <h3><i class="fas fa-list"></i> Keyword-Palette</h3>
+        <input type="text" id="keywordFilter" placeholder="Keyword filtern..." class="keyword-filter">
+        <div id="keywords"></div>
+        <button id="addKeyword" class="btn-add-keyword"><i class="fas fa-plus"></i> Keyword hinzufügen</button>
+      </section>
+      <section class="test-case-list-container">
+        <h3><i class="fas fa-list"></i> Testfall-Liste</h3>
+        <div id="test-case-list"></div>
+        <button id="add-test-case" class="btn-add-test-case"><i class="fas fa-plus"></i> Neuer Testfall</button>
+      </section>
+    </aside>
+    <section class="workspace-container">
       <h3><i class="fas fa-edit"></i> Testfall-Editor</h3>
       <div class="test-case-metadata">
         <label for="test-case-name">Testfall-Name:</label>
         <input type="text" id="test-case-name" placeholder="Name des Testfalls">
-
         <label for="test-case-doc">Dokumentation:</label>
         <textarea id="test-case-doc" placeholder="Beschreibe den Testfall"></textarea>
       </div>
       <div id="workspace" class="workspace"></div>
       <button class="export-button"><i class="fas fa-download"></i> Exportieren</button>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>
-<script type="module" src="js/app.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>

@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const keywordFilter = document.getElementById('keywordFilter');
   let allKeywords = []; // Variable to store all keywords
   const workspace = document.getElementById('workspace');
+  const addKeywordBtn = document.getElementById('addKeyword');
   let testCases = [];
   let currentTestCaseId = null;
   selectRobotButton.addEventListener('click', () => {
@@ -14,8 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   keywordFilter.addEventListener('input', filterKeywords); // Filterfunktion bei Eingabe
 
+  addKeywordBtn.addEventListener('click', openAddKeywordDialog)
   // Call addKeywordButton to ensure the button is added to the palette
-  addKeywordButton();
   addTestCase();
 
   function handleFileUpload(event) {
@@ -463,16 +464,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.removeChild(anchor);
   }
 
-  function addKeywordButton() {
-    const keywordContainer = document.getElementById('keywords');
-
-    const addButton = document.createElement('button');
-    addButton.className = 'btn-add-keyword';
-    addButton.textContent = '+';
-    addButton.onclick = openAddKeywordDialog;
-
-    keywordContainer.appendChild(addButton);
-  }
 
   function openAddKeywordDialog() {
     const dialog = document.createElement('div');
@@ -621,9 +612,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     });
   }
-
-
-
 
   function duplicateTestCase(id) {
     const testCaseToDuplicate = testCases.find(testCase => testCase.id === id);
