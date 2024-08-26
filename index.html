@@ -11,8 +11,11 @@
 <div class="container">
   <header class="header">
     <h1><i class="fas fa-robot"></i> Robot Framework Editor</h1>
-    <button class="select-robot"><i class="fas fa-file-alt"></i> Upload File</button>
-    <input type="file" id="fileInput" accept=".robot" style="display: none;">
+    <div class="header-buttons">
+      <button id="resetState" class="reset-state-button"><i class="fas fa-undo"></i> Reset State</button>
+      <button class="select-robot"><i class="fas fa-file-alt"></i> Upload File</button>
+      <input type="file" id="fileInput" accept=".robot" style="display: none;">
+    </div>
   </header>
   <main class="editor">
     <aside class="sidebar">

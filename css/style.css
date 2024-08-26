@@ -345,6 +345,32 @@ input[type="text"]:focus, textarea:focus {
   background-color: #e53935;
 }
 
+.header-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.reset-state-button {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.reset-state-button i {
+  margin-right: 8px;
+}
+
+.reset-state-button:hover {
+  background-color: #c82333;
+  transform: scale(1.05);
+}
+
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .container {

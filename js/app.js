@@ -2,22 +2,82 @@ document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('fileInput');
   const selectRobotButton = document.querySelector('.select-robot');
   const keywordFilter = document.getElementById('keywordFilter');
-  let allKeywords = []; // Variable to store all keywords
+  let allKeywords = [];
   const workspace = document.getElementById('workspace');
   const addKeywordBtn = document.getElementById('addKeyword');
+  const resetStateButton = document.getElementById('resetState');
   let testCases = [];
   let currentTestCaseId = null;
+
+  // Initialisiere die Event Listener
   selectRobotButton.addEventListener('click', () => {
     fileInput.click();
   });
 
+  resetStateButton.addEventListener('click', () => {
+    if (confirm('Möchten Sie wirklich den Zustand zurücksetzen? Dies wird alle gespeicherten Daten löschen.')) {
+      resetState();
+    }
+  });
+
   fileInput.addEventListener('change', handleFileUpload);
+  keywordFilter.addEventListener('input', filterKeywords);
+  addKeywordBtn.addEventListener('click', openAddKeywordDialog);
+  document.getElementById('add-test-case').addEventListener('click', addTestCase);
+  document.querySelector('.export-button').addEventListener('click', exportTestCase);
+  document.getElementById('test-case-name').addEventListener('input', (e) => {
+    const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+    if (selectedTestCase) {
+      selectedTestCase.name = e.target.value;
+      renderTestCaseList();
+      saveState(); // Speichern nach Änderung des Namens
+    }
+  });
+  document.getElementById('test-case-doc').addEventListener('input', (e) => {
+    const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+    if (selectedTestCase) {
+      selectedTestCase.doc = e.target.value;
+      saveState(); // Speichern nach Änderung der Dokumentation
+    }
+  });
 
-  keywordFilter.addEventListener('input', filterKeywords); // Filterfunktion bei Eingabe
+  // Lade den gespeicherten Zustand beim Initialisieren
+  loadState();
 
-  addKeywordBtn.addEventListener('click', openAddKeywordDialog)
-  // Call addKeywordButton to ensure the button is added to the palette
-  addTestCase();
+  function saveState() {
+    const state = {
+      testCases: testCases,
+      keywords: allKeywords
+    };
+    localStorage.setItem('appState', JSON.stringify(state));
+  }
+
+  function loadState() {
+    const savedState = localStorage.getItem('appState');
+    if (savedState) {
+      const state = JSON.parse(savedState);
+      testCases = state.testCases || [];
+      allKeywords = state.keywords || [];
+      renderTestCaseList();
+      renderKeywords(allKeywords);
+      if (testCases.length > 0) {
+        selectTestCase(testCases[0].id);
+      }
+    } else {
+      console.log('No state found');
+      addTestCase(); // Füge einen neuen Testfall hinzu, falls kein Zustand geladen wird
+    }
+  }
+
+  function resetState() {
+    localStorage.removeItem('appState');
+    testCases = [];
+    allKeywords = [];
+    renderTestCaseList();
+    renderKeywords([]);
+    clearTestCaseEditor();
+    addTestCase();
+  }
 
   function handleFileUpload(event) {
     const file = event.target.files[0];
@@ -41,8 +101,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     reader.readAsText(file);
   }
-
-
 
   function parseKeywords(content) {
     const keywords = [];
@@ -95,46 +153,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return keywords;
   }
-
-
-  // function parseTestCases(content) {
-  //   const lines = content.split('\n');
-  //   let inTestCaseSection = false;
-  //   const testCases = [];
-  //   let currentTestCase = null;
-  //
-  //   lines.forEach(line => {
-  //     const trimmedLine = line.trim();
-  //
-  //     // Detect the start of the Test Cases section
-  //     if (trimmedLine.startsWith('*** Test Cases ***')) {
-  //       inTestCaseSection = true;
-  //     }
-  //     // Handle the start of a new test case
-  //     else if (inTestCaseSection && trimmedLine && !line.startsWith(' ') && !line.startsWith('\t')) {
-  //       if (currentTestCase) {
-  //         testCases.push(currentTestCase);
-  //       }
-  //       currentTestCase = { name: trimmedLine, commands: [] };
-  //     }
-  //     // Handle commands/steps within a test case
-  //     else if (inTestCaseSection && currentTestCase && (line.startsWith(' ') || line.startsWith('\t'))) {
-  //       const parts = trimmedLine.split(/\s{2,}/); // Split by 2 or more spaces
-  //       if (parts.length > 0) {
-  //         const command = parts.shift(); // Command is the first part
-  //         const args = parts.length > 0 ? parts[0].split(/\s+/) : []; // Remaining parts are arguments
-  //         currentTestCase.commands.push({ command, args });
-  //       }
-  //     }
-  //   });
-  //
-  //   // Push the last test case if any
-  //   if (currentTestCase) {
-  //     testCases.push(currentTestCase);
-  //   }
-  //
-  //   return testCases;
-  // }
 
   function renderTestCases(commands) {
     const workspace = document.getElementById('workspace');
@@ -251,10 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       keywordContainer.appendChild(keywordElement);
     });
-
-    addKeywordButton();
   }
-
 
   function filterKeywords() {
     const filterText = keywordFilter.value.toLowerCase();
@@ -360,6 +375,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
   }
+
   function moveItem(item, direction) {
     const items = Array.from(workspace.children);
     const index = items.indexOf(item);
@@ -423,6 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     downloadTestCase(updatedContent);
   }
+
   function appendTestCaseToFile(fileContent, newTestCases) {
     let customKeywords = '';
 
@@ -463,7 +480,6 @@ document.addEventListener('DOMContentLoaded', () => {
     anchor.click();
     document.body.removeChild(anchor);
   }
-
 
   function openAddKeywordDialog() {
     const dialog = document.createElement('div');
@@ -523,6 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     allKeywords.push(newKeyword);
     renderKeywords(allKeywords); // Palette aktualisieren
+    saveState(); // Zustand nach der Änderung speichern
   }
 
   function addTestCase() {
@@ -537,8 +554,17 @@ document.addEventListener('DOMContentLoaded', () => {
     testCases.push(newTestCase);
     renderTestCaseList();
     selectTestCase(id);
+    saveState(); // Zustand nach der Änderung speichern
   }
 
+  function saveState() {
+    const state = {
+      testCases: testCases, // Testfälle
+      keywords: allKeywords // Keywords
+    };
+    console.log('Saving state:', state); // Logging
+    localStorage.setItem('appState', JSON.stringify(state));
+  }
 
   function renderTestCaseList() {
     const testCaseList = document.getElementById('test-case-list');
@@ -657,13 +683,11 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTestCaseList();
   }
 
-
   function clearTestCaseEditor() {
     document.getElementById('test-case-name').value = '';
     document.getElementById('test-case-doc').value = '';
     document.getElementById('workspace').innerHTML = '';
   }
-
 
   function renderTestCaseCommands(commands) {
     const workspace = document.getElementById('workspace');
@@ -674,7 +698,6 @@ document.addEventListener('DOMContentLoaded', () => {
       workspace.appendChild(newItem);
     });
   }
-
 
   function createCommandElement(command) {
     const newItem = document.createElement('div');
@@ -742,30 +765,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return newItem;
   }
-  function escapeInputValue(value) {
-    // Diese Funktion sorgt dafür, dass alle speziellen Zeichen wie "${}" korrekt escaped werden
-    return value.replace(/[\$\{\}]/g, '\\$&');
-  }
-
-
-  document.getElementById('add-test-case').addEventListener('click', addTestCase);
-
-  document.getElementById('test-case-name').addEventListener('input', (e) => {
-    const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
-    if (selectedTestCase) {
-      selectedTestCase.name = e.target.value;
-      renderTestCaseList();
-    }
-  });
-
-  document.getElementById('test-case-doc').addEventListener('input', (e) => {
-    const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
-    if (selectedTestCase) {
-      selectedTestCase.doc = e.target.value;
-    }
-  });
-
-
-
-  document.querySelector('.export-button').addEventListener('click', exportTestCase);
 });
