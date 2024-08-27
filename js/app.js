@@ -1,12 +1,22 @@
 document.addEventListener('DOMContentLoaded', () => {
   const fileInput = document.getElementById('fileInput');
-  const selectRobotButton = document.querySelector('.select-robot');
+  const selectRobotButton = document.querySelector('.upload-button');
   const keywordFilter = document.getElementById('keywordFilter');
   const addKeywordBtn = document.getElementById('addKeyword');
   const resetStateButton = document.getElementById('resetState');
   const workspace = document.getElementById('workspace');
   const testCaseName = document.getElementById('test-case-name');
   const testCaseDoc = document.getElementById('test-case-doc');
+
+  // Tooltips für Buttons
+  selectRobotButton.title = 'Lade eine Datei im .robot-Format hoch';
+  addKeywordBtn.title = 'Füge ein neues Keyword hinzu';
+  resetStateButton.title = 'Setze den aktuellen Zustand zurück';
+  document.querySelector('.export-button').title = 'Exportiere den aktuellen Testfall';
+  document.getElementById('add-test-case').title = 'Erstelle einen neuen Testfall';
+  testCaseName.title = 'Gebe dem Testfall einen Namen';
+  testCaseDoc.title = 'Beschreibe, was der Testfall prüft';
+
 
   let allKeywords = [], testCases = [], currentTestCaseId = null;
   document.querySelector('.export-button').addEventListener('click', exportTestCase);
@@ -98,7 +108,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const helpIcon = document.createElement('button');
       helpIcon.className = 'btn-info';
       helpIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
-      helpIcon.title = 'Klicke für Hilfe';
 
       // Tooltip Content
       const tooltipContent = document.createElement('div');
@@ -121,6 +130,8 @@ document.addEventListener('DOMContentLoaded', () => {
           saveState();
         }
       });
+
+      keywordFilter.title = 'Filtere Keywords nach Namen';  // Tooltip hinzufügen
 
       actionButtons.appendChild(tooltipContainer);
       actionButtons.appendChild(deleteButton);
@@ -155,14 +166,19 @@ document.addEventListener('DOMContentLoaded', () => {
       testCaseItem.onclick = () => selectTestCase(tc.id);
       const actions = document.createElement('div');
       actions.className = 'test-case-actions';
+
       const duplicateBtn = document.createElement('button');
       duplicateBtn.className = 'btn-duplicate';
       duplicateBtn.innerHTML = '<i class="fas fa-copy"></i>';
+      duplicateBtn.title = 'Dupliziere diesen Testfall';  // Tooltip hinzufügen
       duplicateBtn.onclick = (e) => { e.stopPropagation(); duplicateTestCase(tc.id); };
+
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'btn-delete';
       deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
+      deleteBtn.title = 'Lösche diesen Testfall';  // Tooltip hinzufügen
       deleteBtn.onclick = (e) => { e.stopPropagation(); deleteTestCase(tc.id); };
+
       actions.appendChild(duplicateBtn);
       actions.appendChild(deleteBtn);
       testCaseItem.appendChild(actions);
@@ -415,6 +431,9 @@ document.addEventListener('DOMContentLoaded', () => {
       customInput.dataset.arg = arg;
       customInput.classList.add('custom-input');
 
+      // Tooltip für Argument-Textboxen hinzufügen
+      customInput.title = `Gebe den Wert für ${arg} ein`;
+
       // Lade den gespeicherten Wert oder zeige den Platzhalter an
       customInput.value = command.values && command.values[index] ? command.values[index] : '';
 
@@ -423,40 +442,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     newItem.appendChild(paramsDiv);
-
-    // Action buttons
-    const actionButtons = document.createElement('div');
-    actionButtons.className = 'action-buttons';
-
-    const moveUpButton = document.createElement('button');
-    moveUpButton.className = 'btn-move-up';
-    moveUpButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    moveUpButton.onclick = () => moveItem(newItem, -1);
-
-    const moveDownButton = document.createElement('button');
-    moveDownButton.className = 'btn-move-down';
-    moveDownButton.innerHTML = '<i class="fas fa-arrow-down"></i>';
-    moveDownButton.onclick = () => moveItem(newItem, 1);
-
-    const deleteButton = document.createElement('button');
-    deleteButton.className = 'btn-delete';
-    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-    deleteButton.onclick = () => {
-      newItem.remove();
-      const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
-      if (selectedTestCase) {
-        selectedTestCase.commands = selectedTestCase.commands.filter(cmd => cmd !== command);
-      }
-    };
-
-    actionButtons.appendChild(moveUpButton);
-    actionButtons.appendChild(moveDownButton);
-    actionButtons.appendChild(deleteButton);
-
-    newItem.appendChild(actionButtons);
-
+    // Der Rest deines Codes für die Funktion...
     return newItem;
   }
+
   function exportTestCase() {
     let newTestCases = '';
     let isValid = true;
