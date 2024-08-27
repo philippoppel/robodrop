@@ -9,6 +9,7 @@
   <link rel="icon" href="robot-solid.svg" type="image/svg+xml">
 </head>
 <body>
+<span id="saveFeedback" class="save-feedback">Gespeichert!</span>
 <div class="container">
   <header class="header">
     <h1 title="RoboDrop - Dein Testfall-Editor"><i class="fas fa-robot"></i> RoboDrop</h1>
@@ -17,6 +18,7 @@
       <button id="addKeyword" class="btn-header" title="Füge ein neues Keyword hinzu"><i class="fa-solid fa-terminal"></i> Neues Keyword</button>
       <button id="resetState" class="btn-header reset-button" title="Setze den aktuellen Zustand zurück"><i class="fas fa-redo"></i> Zurücksetzen</button>
       <button class="btn-header upload-button" title="Lade eine Datei im .robot-Format hoch"><i class="fas fa-file-upload"></i> Datei Hochladen</button>
+      <button id="saveStateButton" class="btn-header save-button" title="Speichere den aktuellen Zustand"><i class="fas fa-save"></i>Speichern</button>
       <button class="btn-header export-button" title="Exportiere den aktuellen Testfall"><i class="fas fa-download"></i> Exportieren</button>
       <input type="file" id="fileInput" accept=".robot" style="display: none;" title="Wähle eine .robot-Datei zum Hochladen aus">
     </div>
@@ -41,7 +43,7 @@
         <label for="test-case-doc" title="Beschreibe, was der Testfall prüft">Dokumentation:</label>
         <textarea id="test-case-doc" placeholder="Beschreibe den Testfall" title="Beschreibung des Testfalls"></textarea>
       </div>
-      <div id="workspace" class="workspace" title="Workspace für die Testfallerstellung"></div>
+      <div id="workspace" class="workspace"></div>
     </section>
   </main>
 </div>

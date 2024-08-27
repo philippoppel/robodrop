@@ -596,6 +596,43 @@ input[type="text"]:focus, textarea:focus {
   border-color: #333 transparent transparent transparent; /* Pfeil in der gleichen Farbe wie der Tooltip-Hintergrund */
 }
 
+.save-button {
+  background-color: #3498db; /* Blau als Grundfarbe */
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.save-button i {
+  margin-right: 8px;
+}
+
+.save-button:hover {
+  background-color: #2980b9; /* Hellere Hover-Farbe */
+  transform: scale(1.05);
+}
+.selected-test-case {
+  background-color: #007bff;  /* Blaue Farbe */
+  color: white;               /* Weißer Text */
+  font-weight: bold;          /* Fettschrift für bessere Sichtbarkeit */
+  border-radius: 5px;         /* Runde Ecken */
+}
+.save-feedback {
+  position: fixed;
+  top: 50%;                    /* Vertikale Zentrierung */
+  left: 50%;                   /* Horizontale Zentrierung */
+  transform: translate(-50%, -50%); /* Exakte Zentrierung */
+  font-size: 36px;             /* Große Schriftgröße */
+  color: #2ecc71;              /* Grün für positives Feedback */
+  background-color: rgba(0, 0, 0, 0.7); /* Halbtransparentes schwarzes Overlay */
+  padding: 20px 40px;
+  border-radius: 10px;
+  opacity: 0;                  /* Unsichtbar als Standard */
+  transition: opacity 0.3s ease-in-out;
+  z-index: 1000;               /* Über allem anderen positionieren */
+  pointer-events: none;        /* Klicks werden nicht abgefangen */
+}
 
 
 

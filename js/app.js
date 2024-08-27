@@ -27,10 +27,21 @@ document.addEventListener('DOMContentLoaded', () => {
     renderKeywords(filteredKeywords);
   });
 
-  setInterval(() => {
+  const saveStateButton = document.getElementById('saveStateButton');
+  saveStateButton.addEventListener('click', () => {
     saveState();
-  }, 10000);
+    showSaveFeedback();
+  });
 
+  function showSaveFeedback() {
+    const feedbackElement = document.getElementById('saveFeedback');
+    feedbackElement.style.opacity = '1'; // Sichtbar machen
+
+    // Nach 2 Sekunden das Feedback wieder ausblenden
+    setTimeout(() => {
+      feedbackElement.style.opacity = '0';
+    }, 500);
+  }
 
 
 
@@ -49,7 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    const newItem = createCommandElement(data);
+    const newItem = createCommandElement(data); // Erstelle das Element inkl. Buttons und Listener
     workspace.appendChild(newItem);
 
     const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
@@ -59,15 +70,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  const saveState = () => {
+  function saveState() {
+    if (currentTestCaseId) {
+      const currentTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+      if (currentTestCase) {
+        saveCurrentTestCaseValues(currentTestCase);
+      }
+    }
+
     const state = {
       testCases, // Testfälle
       keywords: allKeywords // Keywords
     };
     localStorage.setItem('appState', JSON.stringify(state));
-  };
+  }
 
-  const loadState = () => {
+
+
+  function loadState() {
     const savedState = JSON.parse(localStorage.getItem('appState')) || { testCases: [], keywords: [] };
     testCases = savedState.testCases || [];
     allKeywords = savedState.keywords || [];
@@ -75,8 +95,13 @@ document.addEventListener('DOMContentLoaded', () => {
     renderTestCaseList();
     renderKeywords(allKeywords);
 
-    if (testCases.length) selectTestCase(testCases[0].id);
-  };
+    if (testCases.length) {
+      selectTestCase(currentTestCaseId || testCases[0].id); // Wähle den gespeicherten oder den ersten Testfall aus
+    }
+  }
+
+
+
 
 
 
@@ -155,28 +180,37 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
+
+
   const renderTestCaseList = () => {
     const testCaseList = document.getElementById('test-case-list');
     testCaseList.innerHTML = '';
     testCases.forEach(tc => {
       const testCaseItem = document.createElement('div');
       testCaseItem.className = 'test-case-item';
-      if (tc.id === currentTestCaseId) testCaseItem.classList.add('selected');
+      testCaseItem.dataset.id = tc.id; // Setze eine data-id für das spätere Auswählen
+
+      // Markiere den ausgewählten Testfall
+      if (tc.id === currentTestCaseId) {
+        testCaseItem.classList.add('selected-test-case');
+      }
+
       testCaseItem.textContent = tc.name || 'Neuer Testfall';
       testCaseItem.onclick = () => selectTestCase(tc.id);
+
       const actions = document.createElement('div');
       actions.className = 'test-case-actions';
 
       const duplicateBtn = document.createElement('button');
       duplicateBtn.className = 'btn-duplicate';
       duplicateBtn.innerHTML = '<i class="fas fa-copy"></i>';
-      duplicateBtn.title = 'Dupliziere diesen Testfall';  // Tooltip hinzufügen
+      duplicateBtn.title = 'Dupliziere diesen Testfall';
       duplicateBtn.onclick = (e) => { e.stopPropagation(); duplicateTestCase(tc.id); };
 
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'btn-delete';
       deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-      deleteBtn.title = 'Lösche diesen Testfall';  // Tooltip hinzufügen
+      deleteBtn.title = 'Lösche diesen Testfall';
       deleteBtn.onclick = (e) => { e.stopPropagation(); deleteTestCase(tc.id); };
 
       actions.appendChild(duplicateBtn);
@@ -195,6 +229,7 @@ document.addEventListener('DOMContentLoaded', () => {
       workspace.appendChild(newItem);
     });
   }
+
 
   const openAddKeywordDialog = () => {
     const dialog = document.createElement('div');
@@ -258,9 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
     testCases = testCases.filter(tc => tc.id !== id);
     if (currentTestCaseId === id) currentTestCaseId = null;
     renderTestCaseList();
+    saveState();  // Speichere den aktuellen Zustand, um die Änderung festzuhalten
   };
 
-  const selectTestCase = (id) => {
+
+  function selectTestCase(id) {
     // Speichere die aktuellen Eingabewerte des aktuellen Testfalls
     if (currentTestCaseId) {
       const currentTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
@@ -277,7 +314,21 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('test-case-doc').value = selectedTestCase.doc;
       renderTestCaseCommands(selectedTestCase.commands);
     }
-  };
+
+    // Entferne die Markierung von allen Testfällen
+    const testCaseItems = document.querySelectorAll('.test-case-item');
+    testCaseItems.forEach(item => {
+      item.classList.remove('selected-test-case');
+    });
+
+    // Füge die Markierung zum aktuell ausgewählten Testfall hinzu
+    const currentItem = document.querySelector(`.test-case-item[data-id="${id}"]`);
+    if (currentItem) {
+      currentItem.classList.add('selected-test-case');
+    }
+
+    saveState();  // Speichern des aktuellen Zustands, um die Markierung festzuhalten
+  }
 
 
   const moveItem = (item, direction) => {
@@ -291,10 +342,24 @@ document.addEventListener('DOMContentLoaded', () => {
   function handleDragStart(e) {
     const dataToTransfer = {
       name: e.target.dataset.name,
-      args: JSON.parse(e.target.dataset.args),
-      help: e.target.dataset.help
+      args: JSON.parse(e.target.dataset.args || '[]'),
+      help: e.target.dataset.help || ''
     };
     e.dataTransfer.setData('text/plain', JSON.stringify(dataToTransfer));
+
+    const dragImage = e.target.cloneNode(true);
+    dragImage.style.width = `${e.target.offsetWidth}px`;
+    dragImage.style.height = `${e.target.offsetHeight}px`;
+    dragImage.style.opacity = '0.7';
+    dragImage.style.position = 'absolute';
+    dragImage.style.top = '-9999px';
+
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, e.offsetX, e.offsetY);
+
+    setTimeout(() => {
+      document.body.removeChild(dragImage);
+    }, 0);
   }
 
   const showHelpModal = (helpText) => {
@@ -328,66 +393,108 @@ document.addEventListener('DOMContentLoaded', () => {
       const content = e.target.result;
       localStorage.setItem('uploadedFileContent', content);
 
-      // Neue Keywords aus der Datei parsen und mit bestehenden zusammenführen
-      const importedKeywords = parseKeywords(content);
-      allKeywords = [...importedKeywords, ...allKeywords.filter(k => k.help?.startsWith('TODO'))];
+      const { keywords, testCases: parsedTestCases } = parseRobotFile(content);
+
+      allKeywords = [...keywords, ...allKeywords.filter(k => k.help?.startsWith('TODO'))];
+      testCases = [...testCases, ...parsedTestCases];  // Test Cases korrekt hinzufügen
 
       renderKeywords(allKeywords);
+      renderTestCaseList();
       saveState(); // Zustand speichern
     };
     reader.readAsText(event.target.files[0]);
   }
 
-  function parseKeywords(content) {
+  function parseRobotFile(content) {
     const keywords = [];
+    const testCases = [];
     const lines = content.split('\n');
-    let inKeywordsSection = false;
+    let section = null;
     let currentKeyword = null;
+    let currentTestCase = null;
 
     lines.forEach(line => {
       const trimmedLine = line.trim();
 
-      if (trimmedLine === '*** Keywords ***') {
-        inKeywordsSection = true;
-        return;
-      }
-
-      if (inKeywordsSection && trimmedLine.startsWith('***') && trimmedLine.endsWith('***')) {
-        inKeywordsSection = false;
-        return;
-      }
-
-      if (!inKeywordsSection) return;
-
-      if (!line.startsWith(' ') && !line.startsWith('\t')) {
-        if (currentKeyword && currentKeyword.name.trim()) {
-          keywords.push(currentKeyword);
-        }
-        currentKeyword = {
-          name: trimmedLine,
-          args: [],
-          steps: [],
-          returnValues: [],
-          help: ''
-        };
-      } else if (currentKeyword) {
-        if (trimmedLine.startsWith('[Arguments]')) {
-          currentKeyword.args = trimmedLine.split(/\s+/).slice(1);
-        } else if (trimmedLine.startsWith('[Documentation]')) {
-          currentKeyword.help = trimmedLine.replace('[Documentation]', '').trim();
-        } else if (trimmedLine.startsWith('[Return]')) {
-          currentKeyword.returnValues = trimmedLine.split(/\s+/).slice(1);
+      // Erkennung der Sektionen
+      if (trimmedLine.startsWith('***')) {
+        if (trimmedLine.includes('Keywords')) {
+          section = 'keywords';
+        } else if (trimmedLine.includes('Test Cases')) {
+          section = 'testCases';
         } else {
-          currentKeyword.steps.push(trimmedLine);
+          section = null;
+        }
+        return;
+      }
+
+      // Verarbeitung von Keywords
+      if (section === 'keywords') {
+        if (line.startsWith(' ') || line.startsWith('\t')) {
+          if (currentKeyword) {
+            if (trimmedLine.startsWith('[Arguments]')) {
+              currentKeyword.args = trimmedLine.split(/\s+/).slice(1);  // Extrahiere die Argumente
+            } else if (trimmedLine.startsWith('[Documentation]')) {
+              currentKeyword.help = trimmedLine.replace('[Documentation]', '').trim();
+            } else {
+              currentKeyword.steps.push(trimmedLine);
+            }
+          }
+        } else {
+          if (currentKeyword && currentKeyword.name.trim()) {
+            keywords.push(currentKeyword);
+          }
+          currentKeyword = {
+            name: trimmedLine,
+            args: [],
+            steps: [],
+            help: ''
+          };
+        }
+      }
+
+      // Verarbeitung von Testfällen
+      if (section === 'testCases') {
+        if (line.startsWith(' ') || line.startsWith('\t')) {
+          if (currentTestCase) {
+            if (trimmedLine.startsWith('[Documentation]')) {
+              currentTestCase.doc = trimmedLine.replace('[Documentation]', '').trim();
+            } else if (trimmedLine) {
+              const commandParts = trimmedLine.split(/\s{2,}/);  // Trennen bei mindestens 2 Leerzeichen
+              const commandName = commandParts.shift();
+              const commandArgs = commandParts.length > 0 ? commandParts : [];
+
+              currentTestCase.commands.push({
+                name: commandName,
+                args: commandArgs,
+                values: commandArgs  // Setze die Argumente als Werte, die später modifiziert werden können
+              });
+            }
+          }
+        } else {
+          if (currentTestCase && currentTestCase.name.trim()) {
+            testCases.push(currentTestCase);
+          }
+          currentTestCase = {
+            id: `test-case-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+            name: trimmedLine,
+            doc: '',
+            commands: []
+          };
         }
       }
     });
 
+    // Füge das letzte Keyword oder den letzten Testfall hinzu
     if (currentKeyword && currentKeyword.name.trim()) {
       keywords.push(currentKeyword);
     }
 
-    return keywords;
+    if (currentTestCase && currentTestCase.name.trim()) {
+      testCases.push(currentTestCase);
+    }
+
+    return { keywords, testCases };
   }
 
   function updateTestCaseField(field, value) {
@@ -426,29 +533,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const customInput = document.createElement('input');
       customInput.type = 'text';
-      customInput.placeholder = arg;
       customInput.style.marginLeft = '10px';
-      customInput.dataset.arg = arg;
       customInput.classList.add('custom-input');
 
-      // Tooltip für Argument-Textboxen hinzufügen
-      customInput.title = `Gebe den Wert für ${arg} ein`;
+      // Verwende gespeicherten Wert oder Argument-Platzhalter
+      if (command.values && command.values[index]) {
+        customInput.value = command.values[index];
+      } else {
+        customInput.placeholder = arg;
+      }
 
-      // Lade den gespeicherten Wert oder zeige den Platzhalter an
-      customInput.value = command.values && command.values[index] ? command.values[index] : '';
+      // Speichere den Zustand bei jeder Eingabe
+      customInput.addEventListener('input', () => {
+        command.values[index] = customInput.value.trim();
+        saveState();
+      });
 
       inputContainer.appendChild(customInput);
       paramsDiv.appendChild(inputContainer);
     });
 
     newItem.appendChild(paramsDiv);
-    // Der Rest deines Codes für die Funktion...
+
     return newItem;
   }
 
   function exportTestCase() {
     let newTestCases = '';
     let isValid = true;
+    saveState(); // Speichere den aktuellen Zustand
 
     testCases.forEach(testCase => {
       const testCaseName = testCase.name.trim();
@@ -477,7 +590,6 @@ document.addEventListener('DOMContentLoaded', () => {
       testCase.commands.forEach(command => {
         let commandLine = `    ${command.name}`;
         command.args.forEach((arg, index) => {
-          // Verwende den tatsächlich eingegebenen Wert oder den Platzhalter
           const value = command.values && command.values[index] ? command.values[index] : arg;
           commandLine += `    ${value}`;
         });
@@ -498,28 +610,17 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function appendTestCaseToFile(fileContent, newTestCases) {
-    let customKeywords = '';
+    // Prüfen, ob bereits eine Testfall-Sektion existiert
+    const hasTestCasesSection = fileContent.includes('*** Test Cases ***');
 
-    allKeywords.forEach(keyword => {
-      const helpText = keyword.help || ''; // Sicherstellen, dass help definiert ist
-      if (helpText.startsWith('TODO')) {
-        customKeywords += `\n${keyword.name}\n    Log    ${helpText}`;
-        if (keyword.args.length > 0) {
-          const formattedArgs = keyword.args.join('    ');
-          customKeywords += `\n    [Arguments]    ${formattedArgs}`;
-        }
-        customKeywords += '\n\n'; // Füge zwei Leerzeilen nach jedem Keyword hinzu
-      }
-    });
-
-    if (fileContent.includes('*** Keywords ***')) {
-      const keywordSection = fileContent.split('*** Keywords ***')[1];
-      fileContent = fileContent.replace(keywordSection, customKeywords + keywordSection);
-    } else {
-      fileContent += `\n\n*** Keywords ***\n${customKeywords.trim()}\n\n`;
+    if (hasTestCasesSection) {
+      // Trenne den Abschnitt mit den Testfällen ab
+      const [beforeTestCases] = fileContent.split('*** Test Cases ***');
+      fileContent = beforeTestCases.trim();  // Entferne den Test Cases Abschnitt
     }
 
-    return fileContent + '\n\n*** Test Cases ***\n' + newTestCases.trim() + '\n';
+    // Alle neuen Testfälle in die Datei einfügen
+    return `${fileContent}\n\n*** Test Cases ***\n${newTestCases}`.trim();
   }
 
   function downloadTestCase(content) {
