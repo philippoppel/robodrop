@@ -416,6 +416,11 @@ document.addEventListener('DOMContentLoaded', () => {
     lines.forEach(line => {
       const trimmedLine = line.trim();
 
+      // Ignoriere Zeilen, die mit # beginnen
+      if (trimmedLine.startsWith('#')) {
+        return;
+      }
+
       // Erkennung der Sektionen
       if (trimmedLine.startsWith('***')) {
         if (trimmedLine.includes('Keywords')) {
@@ -533,18 +538,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const customInput = document.createElement('input');
       customInput.type = 'text';
+      customInput.placeholder = arg;
       customInput.style.marginLeft = '10px';
       customInput.classList.add('custom-input');
+      customInput.value = command.values && command.values[index] ? command.values[index] : '';
 
-      // Verwende gespeicherten Wert oder Argument-Platzhalter
-      if (command.values && command.values[index]) {
-        customInput.value = command.values[index];
-      } else {
-        customInput.placeholder = arg;
-      }
-
-      // Speichere den Zustand bei jeder Eingabe
       customInput.addEventListener('input', () => {
+        if (!command.values) {
+          command.values = [];
+        }
         command.values[index] = customInput.value.trim();
         saveState();
       });
@@ -554,6 +556,40 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     newItem.appendChild(paramsDiv);
+
+    const actionButtons = document.createElement('div');
+    actionButtons.className = 'action-buttons';
+
+    const moveUpButton = document.createElement('button');
+    moveUpButton.className = 'btn-move-up';
+    moveUpButton.innerHTML = '<i class="fas fa-arrow-up"></i>';
+    moveUpButton.title = 'Nach oben verschieben';
+    moveUpButton.onclick = () => moveItem(newItem, -1);
+
+    const moveDownButton = document.createElement('button');
+    moveDownButton.className = 'btn-move-down';
+    moveDownButton.innerHTML = '<i class="fas fa-arrow-down"></i>';
+    moveDownButton.title = 'Nach unten verschieben';
+    moveDownButton.onclick = () => moveItem(newItem, 1);
+
+    const deleteButton = document.createElement('button');
+    deleteButton.className = 'btn-delete';
+    deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
+    deleteButton.title = 'Löschen';
+    deleteButton.onclick = () => {
+      newItem.remove();
+      const selectedTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+      if (selectedTestCase) {
+        selectedTestCase.commands = selectedTestCase.commands.filter(cmd => cmd !== command);
+        saveState();
+      }
+    };
+
+    actionButtons.appendChild(moveUpButton);
+    actionButtons.appendChild(moveDownButton);
+    actionButtons.appendChild(deleteButton);
+
+    newItem.appendChild(actionButtons);
 
     return newItem;
   }
