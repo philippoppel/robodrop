@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const testCaseName = document.getElementById('test-case-name');
   const testCaseDoc = document.getElementById('test-case-doc');
 
-  // Tooltips für Buttons
+  // Tooltips für Buttons mit dem title-Attribut
   selectRobotButton.title = 'Lade eine Datei im .robot-Format hoch';
   addKeywordBtn.title = 'Füge ein neues Keyword hinzu';
   resetStateButton.title = 'Setze den aktuellen Zustand zurück';
@@ -16,7 +16,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('add-test-case').title = 'Erstelle einen neuen Testfall';
   testCaseName.title = 'Gebe dem Testfall einen Namen';
   testCaseDoc.title = 'Beschreibe, was der Testfall prüft';
-
 
   let allKeywords = [], testCases = [], currentTestCaseId = null;
   document.querySelector('.export-button').addEventListener('click', exportTestCase);
@@ -43,15 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 500);
   }
 
-
-
   workspace.addEventListener('dragover', (e) => e.preventDefault());
 
   workspace.addEventListener('drop', (e) => {
     e.preventDefault();
     const rawData = e.dataTransfer.getData('text/plain');
     if (!rawData) return;
-
     let data;
     try {
       data = JSON.parse(rawData);
@@ -59,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
       console.error('Fehler beim Parsen der Drag-and-Drop-Daten:', error);
       return;
     }
-
     const newItem = createCommandElement(data); // Erstelle das Element inkl. Buttons und Listener
     workspace.appendChild(newItem);
 
@@ -71,11 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   function saveState() {
-    if (currentTestCaseId) {
-      const currentTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
-      if (currentTestCase) {
-        saveCurrentTestCaseValues(currentTestCase);
-      }
+    const currentTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
+    if (currentTestCase) {
+      saveCurrentTestCaseValues(currentTestCase);
     }
 
     const state = {
@@ -84,9 +77,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     localStorage.setItem('appState', JSON.stringify(state));
   }
-
-
-
   function loadState() {
     const savedState = JSON.parse(localStorage.getItem('appState')) || { testCases: [], keywords: [] };
     testCases = savedState.testCases || [];
@@ -100,87 +90,79 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-
-
-
-
-
   function renderKeywords(keywords) {
     const keywordContainer = document.getElementById('keywords');
-    keywordContainer.innerHTML = ''; // Vorherige Keywords löschen
+    keywordContainer.innerHTML = ''; // Clear previous content
 
-    keywords.forEach(keyword => {
-      if (!keyword.name || keyword.name.trim() === '') return;
+    // Gruppiere Keywords nach Kategorien
+    const categorizedKeywords = keywords.reduce((acc, keyword) => {
+      const category = keyword.category || 'Uncategorized';
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(keyword);
+      return acc;
+    }, {});
 
-      const keywordElement = document.createElement('div');
-      keywordElement.className = 'draggable';
-      keywordElement.draggable = true;
-      keywordElement.textContent = keyword.name;
+    // Erstelle für jede Kategorie ein Dropdown
+    Object.entries(categorizedKeywords).forEach(([category, keywords]) => {
+      const categoryContainer = document.createElement('div');
+      categoryContainer.className = 'category-container';
 
-      keywordElement.dataset.name = keyword.name;
-      keywordElement.dataset.args = JSON.stringify(keyword.args || []);
-      keywordElement.dataset.values = JSON.stringify(keyword.values || {});
-      keywordElement.dataset.help = keyword.help || 'Keine Hilfe verfügbar';
+      const dropdown = document.createElement('details');
+      dropdown.className = 'keyword-dropdown';
+      const summary = document.createElement('summary');
+      summary.textContent = category;
 
-      const actionButtons = document.createElement('div');
-      actionButtons.className = 'action-buttons';
+      dropdown.appendChild(summary);
 
-      // Tooltip Container
-      const tooltipContainer = document.createElement('div');
-      tooltipContainer.className = 'tooltip-container';
+      keywords.forEach(keyword => {
+        const keywordElement = document.createElement('div');
+        keywordElement.className = 'draggable keyword-item';
+        keywordElement.draggable = true;
+        keywordElement.textContent = keyword.name;
 
-      // Info-Icon Button
-      const helpIcon = document.createElement('button');
-      helpIcon.className = 'btn-info';
-      helpIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
+        keywordElement.dataset.name = keyword.name;
+        keywordElement.dataset.args = JSON.stringify(keyword.args || []);
+        keywordElement.dataset.values = JSON.stringify(keyword.values || {});
+        keywordElement.dataset.help = keyword.help || 'Keine Hilfe verfügbar';
 
-      // Tooltip Content
-      const tooltipContent = document.createElement('div');
-      tooltipContent.className = 'tooltip-content';
-      tooltipContent.textContent = keyword.help || 'Keine Hilfe verfügbar';
+        const actionButtons = document.createElement('div');
+        actionButtons.className = 'action-buttons';
 
-      tooltipContainer.appendChild(helpIcon);
-      tooltipContainer.appendChild(tooltipContent);
+        // Setze den Tooltip über das title-Attribut
+        keywordElement.title = keyword.help || 'Keine Hilfe verfügbar';
 
+        keywordElement.appendChild(actionButtons);
 
-      const deleteButton = document.createElement('button');
-      deleteButton.className = 'btn-delete';
-      deleteButton.innerHTML = '<i class="fas fa-trash"></i>';
-      deleteButton.title = 'Löschen';
-      deleteButton.addEventListener('click', function (e) {
-        e.stopPropagation();
-        if (confirm(`Möchten Sie das Keyword "${keyword.name}" wirklich löschen?`)) {
-          allKeywords = allKeywords.filter(k => k !== keyword);
-          renderKeywords(allKeywords);
-          saveState();
-        }
+        keywordElement.addEventListener('dragstart', handleDragStart);
+        dropdown.appendChild(keywordElement);
       });
 
-      keywordFilter.title = 'Filtere Keywords nach Namen';  // Tooltip hinzufügen
-
-      actionButtons.appendChild(tooltipContainer);
-      actionButtons.appendChild(deleteButton);
-      keywordElement.appendChild(actionButtons);
-
-      keywordElement.addEventListener('dragstart', handleDragStart);
-      keywordContainer.appendChild(keywordElement);
+      categoryContainer.appendChild(dropdown);
+      keywordContainer.appendChild(categoryContainer);
     });
+
+    // Angleichen der Höhen zwischen Palette und Editor
+    adjustEditorHeight();
   }
 
-  function saveCurrentTestCaseValues(testCase) {
-    const workspaceItems = document.querySelectorAll('.keyword-item');
+  function adjustEditorHeight() {
+    const palette = document.querySelector('.sidebar');
+    const editor = document.querySelector('.workspace-container');
+    const paletteHeight = palette.offsetHeight;
+    editor.style.height = `${paletteHeight}px`;
+  }
 
-    workspaceItems.forEach((item, index) => {
-      const command = testCase.commands[index];
-      if (command) {
-        const inputs = item.querySelectorAll('input.custom-input');
-        command.values = Array.from(inputs).map(input => input.value.trim());
+  window.addEventListener('resize', adjustEditorHeight);
+  document.addEventListener('DOMContentLoaded', adjustEditorHeight);
+
+  function saveCurrentTestCaseValues(currentTestCase) {
+    currentTestCase.commands.forEach(command => {
+      // Führe das Logging nur aus, wenn command.values existiert und nicht leer ist
+      if (command.values && command.values.some(value => value !== '')) {
+        console.log(`Saving values for command ${command.name}: `, command.values);
       }
     });
   }
-
-
-
 
   const renderTestCaseList = () => {
     const testCaseList = document.getElementById('test-case-list');
@@ -204,14 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const duplicateBtn = document.createElement('button');
       duplicateBtn.className = 'btn-duplicate';
       duplicateBtn.innerHTML = '<i class="fas fa-copy"></i>';
-      duplicateBtn.title = 'Dupliziere diesen Testfall';
-      duplicateBtn.onclick = (e) => { e.stopPropagation(); duplicateTestCase(tc.id); };
+      duplicateBtn.title = 'Dupliziere diesen Testfall'; // Beibehaltung des title-Tooltips
 
       const deleteBtn = document.createElement('button');
       deleteBtn.className = 'btn-delete';
       deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-      deleteBtn.title = 'Lösche diesen Testfall';
-      deleteBtn.onclick = (e) => { e.stopPropagation(); deleteTestCase(tc.id); };
+      deleteBtn.title = 'Lösche diesen Testfall'; // Beibehaltung des title-Tooltips
+
+      // Event-Listener für Duplizieren und Löschen
+      duplicateBtn.addEventListener('click', () => duplicateTestCase(tc.id));
+      deleteBtn.addEventListener('click', () => deleteTestCase(tc.id));
 
       actions.appendChild(duplicateBtn);
       actions.appendChild(deleteBtn);
@@ -225,45 +209,70 @@ document.addEventListener('DOMContentLoaded', () => {
     workspace.innerHTML = ''; // Clear the current workspace
 
     commands.forEach(command => {
+      // Erstelle die Kommandos nur, wenn sie korrekt initialisiert sind
+      if (!command.values) {
+        command.values = command.args.map(() => '');
+      }
       const newItem = createCommandElement(command);
       workspace.appendChild(newItem);
     });
   }
-
-
   const openAddKeywordDialog = () => {
-    const dialog = document.createElement('div');
-    dialog.className = 'dialog-overlay';
-    dialog.innerHTML = `
-      <div class="dialog-content">
-        <h2>Neues Keyword hinzufügen</h2>
-        <label for="keywordName">Name des Keywords:</label>
-        <input type="text" id="keywordName" placeholder="Name" />
-        <label for="keywordDescription">Beschreibung:</label>
-        <textarea id="keywordDescription" placeholder="Beschreibung"></textarea>
-        <label for="keywordArguments">Argumente (komma-getrennt):</label>
-        <input type="text" id="keywordArguments" placeholder="arg1, arg2, ..." />
-        <button class="btn-confirm">Hinzufügen</button>
-        <button class="btn-cancel">Abbrechen</button>
-      </div>`;
-    document.body.appendChild(dialog);
+    const dialog = document.getElementById('addKeywordDialog');
+    const categorySelect = document.getElementById('keywordCategory');
+
+    // Befülle das Dropdown mit den verfügbaren Kategorien
+    populateCategoryDropdown();
+
+    dialog.showModal();
+
     dialog.querySelector('.btn-confirm').onclick = () => {
       const name = document.getElementById('keywordName').value.trim();
       const description = document.getElementById('keywordDescription').value.trim();
       const args = document.getElementById('keywordArguments').value.split(',').map(arg => arg.trim()).filter(arg => arg);
-      if (name && description) addCustomKeyword(name, description, args);
-      dialog.remove();
+      const category = document.getElementById('keywordCategory').value;
+
+      // Validierung: Überprüfen, ob alle Felder ausgefüllt sind
+      if (!name || !description || !category) {
+        alert("Bitte füllen Sie alle Felder aus.");
+        return;
+      }
+
+      // Keyword hinzufügen, wenn die Validierung erfolgreich war
+      addCustomKeyword(name, description, args, category);
+      dialog.close();
     };
-    dialog.querySelector('.btn-cancel').onclick = () => dialog.remove();
+
+    dialog.querySelector('.btn-cancel').onclick = () => {
+      dialog.close();
+    };
   };
 
-  const addCustomKeyword = (name, description, args) => {
+  const populateCategoryDropdown = () => {
+    const categorySelect = document.getElementById('keywordCategory');
+    categorySelect.innerHTML = ''; // Leere das Dropdown vor der Befüllung
+
+    // Erhalte alle einzigartigen Kategorien aus den vorhandenen Keywords
+    const uniqueCategories = [...new Set(allKeywords.map(keyword => keyword.category || 'Uncategorized'))];
+
+    // Füge jede Kategorie als Option hinzu
+    uniqueCategories.forEach(category => {
+      const option = document.createElement('option');
+      option.value = category;
+      option.textContent = category;
+      categorySelect.appendChild(option);
+    });
+  };
+
+// Aktualisierte Funktion zum Hinzufügen eines Keywords mit Kategorie
+  const addCustomKeyword = (name, description, args, category) => {
     const formattedArgs = args.map(arg => `\${${arg}}`);
     const newKeyword = {
       name,
       args: formattedArgs,
       steps: [`Log    Hello, ${formattedArgs.join(' and ')}!`],
-      help: `TODO: ${description}`
+      help: `TODO: ${description}`,
+      category // Füge die Kategorie hinzu
     };
 
     allKeywords.push(newKeyword);
@@ -271,14 +280,22 @@ document.addEventListener('DOMContentLoaded', () => {
     saveState(); // Zustand speichern
   };
 
-  const addTestCase = () => {
+  function addTestCase() {
     const id = `test-case-${Date.now()}`;
-    testCases.push({ id, name: '', doc: '', commands: [] });
-    renderTestCaseList();
-    selectTestCase(id);
-    saveState();
-  };
 
+    // Neuen Testfall erstellen und initialisieren
+    const newTestCase = { id, name: '', doc: '', commands: [] };
+    testCases.push(newTestCase);
+
+    // Setze den neuen Testfall als aktuellen Testfall
+    currentTestCaseId = id;
+
+    // Testfall direkt auswählen und rendern
+    selectTestCase(id);
+
+    // Speichere den Zustand sofort nach Erstellung und Initialisierung
+    saveState();
+  }
   const duplicateTestCase = (id) => {
     const tc = testCases.find(t => t.id === id);
     if (tc) {
@@ -296,9 +313,8 @@ document.addEventListener('DOMContentLoaded', () => {
     saveState();  // Speichere den aktuellen Zustand, um die Änderung festzuhalten
   };
 
-
   function selectTestCase(id) {
-    // Speichere die aktuellen Eingabewerte des aktuellen Testfalls
+    // Speichern der Eingaben des vorherigen Testfalls
     if (currentTestCaseId) {
       const currentTestCase = testCases.find(testCase => testCase.id === currentTestCaseId);
       if (currentTestCase) {
@@ -306,12 +322,22 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
+    // Aktualisiere den aktuellen Testfall
     currentTestCaseId = id;
     const selectedTestCase = testCases.find(tc => tc.id === id);
 
+    // Initialisierung der Eingabefelder des ausgewählten Testfalls
     if (selectedTestCase) {
       document.getElementById('test-case-name').value = selectedTestCase.name;
       document.getElementById('test-case-doc').value = selectedTestCase.doc;
+
+      // Sicherstellen, dass commands und deren values initialisiert sind
+      selectedTestCase.commands.forEach(command => {
+        if (!command.values) {
+          command.values = command.args.map(() => '');
+        }
+      });
+
       renderTestCaseCommands(selectedTestCase.commands);
     }
 
@@ -321,16 +347,15 @@ document.addEventListener('DOMContentLoaded', () => {
       item.classList.remove('selected-test-case');
     });
 
-    // Füge die Markierung zum aktuell ausgewählten Testfall hinzu
+    // Markiere den aktuellen Testfall
     const currentItem = document.querySelector(`.test-case-item[data-id="${id}"]`);
     if (currentItem) {
       currentItem.classList.add('selected-test-case');
     }
 
-    saveState();  // Speichern des aktuellen Zustands, um die Markierung festzuhalten
+    // Speichere den Zustand, um sicherzustellen, dass alle Änderungen festgehalten werden
+    saveState();
   }
-
-
   const moveItem = (item, direction) => {
     const items = Array.from(workspace.children);
     const index = items.indexOf(item);
@@ -377,9 +402,35 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   selectRobotButton.addEventListener('click', () => fileInput.click());
-  resetStateButton.addEventListener('click', () => confirm('Möchten Sie wirklich den Zustand zurücksetzen?') && resetState());
+  resetStateButton.addEventListener('click', () => {
+    if (confirm('Möchten Sie wirklich den Zustand zurücksetzen?')) {
+      resetState();
+      reinitializeEventListeners(); // Hier wird die Funktion aufgerufen
+    }
+  });
   fileInput.addEventListener('change', handleFileUpload);
-  keywordFilter.addEventListener('input', () => renderKeywords(allKeywords.filter(k => k.name.toLowerCase().includes(keywordFilter.value.toLowerCase()))));
+  keywordFilter.addEventListener('input', () => {
+    const filterText = keywordFilter.value.toLowerCase();
+    const filteredKeywords = allKeywords.filter(keyword =>
+      keyword.name.toLowerCase().includes(filterText) ||
+      (keyword.category && keyword.category.toLowerCase().includes(filterText))
+    );
+
+    renderKeywords(filteredKeywords);
+
+    if (filterText) {
+      // Nur Dropdowns öffnen, wenn ein Filtertext vorhanden ist
+      document.querySelectorAll('.keyword-dropdown').forEach(dropdown => dropdown.setAttribute('open', ''));
+
+      // Nur die Keyword-Namen in der Keyword-Palette hervorheben
+      const keywordContainer = document.getElementById('keywords');
+      highlightText(filterText, keywordContainer);
+    } else {
+      // Wenn kein Filtertext vorhanden ist, alle Dropdowns schließen
+      document.querySelectorAll('.keyword-dropdown').forEach(dropdown => dropdown.removeAttribute('open'));
+    }
+  });
+
   addKeywordBtn.addEventListener('click', openAddKeywordDialog);
   document.getElementById('add-test-case').addEventListener('click', addTestCase);
   testCaseName.addEventListener('input', (e) => updateTestCaseField('name', e.target.value));
@@ -387,20 +438,50 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadState();
 
+  function highlightText(text, container) {
+    const regex = new RegExp(`(${text})`, 'gi');
+
+    container.querySelectorAll('.keyword-item').forEach(item => {
+      // Erhalte den ursprünglichen Text des Keywords
+      const keywordName = item.dataset.name;
+      const highlightedName = keywordName.replace(regex, "<span class='highlight'>$1</span>");
+
+      // Setze den HTML-Inhalt des Elements nur für das Keyword-Label neu
+      const keywordTitleElement = item.querySelector('.keyword-title');
+      if (keywordTitleElement) {
+        keywordTitleElement.innerHTML = highlightedName;
+      }
+    });
+  }
+
   function handleFileUpload(event) {
+    console.log("File input change event triggered."); // Dies sollte in der Konsole erscheinen, wenn das Event auslöst.
     const reader = new FileReader();
     reader.onload = (e) => {
-      const content = e.target.result;
-      localStorage.setItem('uploadedFileContent', content);
+      try {
+        const content = e.target.result;
+        if (!content) {
+          console.warn("File content is empty or null.");
+          return;
+        }
 
-      const { keywords, testCases: parsedTestCases } = parseRobotFile(content);
+        console.log("File content loaded:", content);
+        localStorage.setItem('uploadedFileContent', content);
 
-      allKeywords = [...keywords, ...allKeywords.filter(k => k.help?.startsWith('TODO'))];
-      testCases = [...testCases, ...parsedTestCases];  // Test Cases korrekt hinzufügen
+        const { keywords, testCases: parsedTestCases } = parseRobotFile(content);
 
-      renderKeywords(allKeywords);
-      renderTestCaseList();
-      saveState(); // Zustand speichern
+        allKeywords = [...keywords, ...allKeywords.filter(k => k.help?.startsWith('TODO'))];
+        testCases = [...testCases, ...parsedTestCases];
+
+        renderKeywords(allKeywords);
+        renderTestCaseList();
+        saveState(); // Speichere den neuen Zustand
+      } catch (error) {
+        console.error("Error during file upload:", error);
+      }
+    };
+    reader.onerror = (error) => {
+      console.error("Error reading file:", error);
     };
     reader.readAsText(event.target.files[0]);
   }
@@ -412,12 +493,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let section = null;
     let currentKeyword = null;
     let currentTestCase = null;
+    let currentCategory = null;  // Für die Kategorie aus den Kommentaren
 
     lines.forEach(line => {
       const trimmedLine = line.trim();
 
-      // Ignoriere Zeilen, die mit # beginnen
+      // Ignoriere Zeilen, die mit # beginnen, es sei denn, sie sind Kategorie-Kommentare
       if (trimmedLine.startsWith('#')) {
+        const categoryMatch = trimmedLine.match(/# Kategorie: (.+)/i);
+        if (categoryMatch) {
+          currentCategory = categoryMatch[1].trim(); // Extrahiere die Kategorie
+        }
         return;
       }
 
@@ -453,8 +539,10 @@ document.addEventListener('DOMContentLoaded', () => {
             name: trimmedLine,
             args: [],
             steps: [],
-            help: ''
+            help: '',
+            category: currentCategory || 'Uncategorized'  // Setze die Kategorie oder 'Uncategorized'
           };
+          currentCategory = null; // Setze die Kategorie zurück
         }
       }
 
@@ -512,19 +600,29 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function resetState() {
+    console.log("Resetting state...");
     localStorage.removeItem('appState');
     testCases = [];
     allKeywords = [];
+    currentTestCaseId = null;
     renderTestCaseList();
     renderKeywords([]);
     addTestCase();
+
+    // Zusätzliche Log-Ausgabe
+    console.log("Reinitializing event listeners after reset.");
+    location.reload();
+    console.log("State reset complete. Test Cases and Keywords have been cleared.");
   }
+
+
   function createCommandElement(command) {
     const newItem = document.createElement('div');
     newItem.className = 'keyword-item';
 
     const keywordTitle = document.createElement('div');
     keywordTitle.className = 'keyword-title';
+    keywordTitle.title = command.help;
     keywordTitle.textContent = command.name;
     newItem.appendChild(keywordTitle);
 
@@ -541,12 +639,15 @@ document.addEventListener('DOMContentLoaded', () => {
       customInput.placeholder = arg;
       customInput.style.marginLeft = '10px';
       customInput.classList.add('custom-input');
-      customInput.value = command.values && command.values[index] ? command.values[index] : '';
+
+      // Initialisiere command.values, falls es noch nicht existiert
+      if (!command.values) {
+        command.values = [];
+      }
+
+      customInput.value = command.values[index] || '';
 
       customInput.addEventListener('input', () => {
-        if (!command.values) {
-          command.values = [];
-        }
         command.values[index] = customInput.value.trim();
         saveState();
       });
@@ -593,7 +694,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     return newItem;
   }
-
   function exportTestCase() {
     let newTestCases = '';
     let isValid = true;
