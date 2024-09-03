@@ -28,19 +28,34 @@ document.addEventListener('DOMContentLoaded', () => {
       // Speichere den Inhalt in localStorage für spätere Verwendungen
       localStorage.setItem('uploadedFileContent', content);
 
-      // Parse den Inhalt wie bei handleFileUpload
+      // Parse den Inhalt der hochgeladenen Datei
       const { keywords, testCases: parsedTestCases } = parseRobotFile(content);
 
-      // Füge die geladenen Keywords und Testfälle hinzu
+      // Füge neue Keywords hinzu oder aktualisiere vorhandene
       allKeywords = [...keywords, ...allKeywords.filter(k => k.help?.startsWith('TODO'))];
-      testCases = [...testCases, ...parsedTestCases];
 
-      // Rendern der Keywords und Testfälle
+      // Verarbeite die Testfälle aus der hochgeladenen Datei
+      parsedTestCases.forEach(parsedTestCase => {
+        // Prüfe, ob ein Testfall mit demselben Namen bereits existiert
+        const existingTestCaseIndex = testCases.findIndex(tc => tc.name === parsedTestCase.name);
+
+        if (existingTestCaseIndex !== -1) {
+          // Überschreibe den bestehenden Testfall mit den neuen Werten
+          testCases[existingTestCaseIndex] = {
+            ...testCases[existingTestCaseIndex], // Behalte bestehende Felder bei, die nicht im Upload enthalten sind
+            doc: parsedTestCase.doc,
+            commands: parsedTestCase.commands
+          };
+        } else {
+          // Füge einen neuen Testfall hinzu, wenn kein bestehender gefunden wurde
+          testCases.push(parsedTestCase);
+        }
+      });
+
+      // Aktualisiere die Benutzeroberfläche
       renderKeywords(allKeywords);
       renderTestCaseList();
-
-      // Zustand speichern
-      saveState();
+      saveState(); // Zustand speichern
     })
     .catch(error => {
       console.log('Automatisches Laden der Datei fehlgeschlagen:', error);
@@ -455,9 +470,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const { keywords, testCases: parsedTestCases } = parseRobotFile(content);
 
+      // Füge neue Keywords hinzu oder aktualisiere vorhandene
       allKeywords = [...keywords, ...allKeywords.filter(k => k.help?.startsWith('TODO'))];
-      testCases = [...testCases, ...parsedTestCases];  // Test Cases korrekt hinzufügen
 
+      // Verarbeite die hochgeladenen Testfälle
+      parsedTestCases.forEach(parsedTestCase => {
+        // Prüfe, ob ein Testfall mit demselben Namen bereits existiert
+        const existingTestCaseIndex = testCases.findIndex(tc => tc.name === parsedTestCase.name);
+
+        if (existingTestCaseIndex !== -1) {
+          // Überschreibe den bestehenden Testfall mit den neuen Werten
+          testCases[existingTestCaseIndex] = {
+            ...testCases[existingTestCaseIndex], // Behalte bestehende Felder bei, die nicht im Upload enthalten sind
+            doc: parsedTestCase.doc,
+            commands: parsedTestCase.commands
+          };
+        } else {
+          // Füge einen neuen Testfall hinzu, wenn kein bestehender gefunden wurde
+          testCases.push(parsedTestCase);
+        }
+      });
+
+      // Aktualisiere die Benutzeroberfläche
       renderKeywords(allKeywords);
       renderTestCaseList();
       saveState(); // Zustand speichern
