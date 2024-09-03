@@ -15,6 +15,37 @@ document.addEventListener('DOMContentLoaded', () => {
   testCaseName.title = 'Gebe dem Testfall einen Namen';
   testCaseDoc.title = 'Beschreibe, was der Testfall prüft';
 
+  const robotFilePath = 'expertinterview.robot';
+
+  fetch(robotFilePath)
+    .then(response => {
+      if (response.ok) {
+        return response.text();
+      }
+      throw new Error('Datei nicht gefunden');
+    })
+    .then(content => {
+      // Speichere den Inhalt in localStorage für spätere Verwendungen
+      localStorage.setItem('uploadedFileContent', content);
+
+      // Parse den Inhalt wie bei handleFileUpload
+      const { keywords, testCases: parsedTestCases } = parseRobotFile(content);
+
+      // Füge die geladenen Keywords und Testfälle hinzu
+      allKeywords = [...keywords, ...allKeywords.filter(k => k.help?.startsWith('TODO'))];
+      testCases = [...testCases, ...parsedTestCases];
+
+      // Rendern der Keywords und Testfälle
+      renderKeywords(allKeywords);
+      renderTestCaseList();
+
+      // Zustand speichern
+      saveState();
+    })
+    .catch(error => {
+      console.log('Automatisches Laden der Datei fehlgeschlagen:', error);
+    });
+
 
   let allKeywords = [], testCases = [], currentTestCaseId = null;
   document.querySelector('.export-button').addEventListener('click', exportTestCase);
