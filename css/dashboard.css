@@ -1,0 +1,363 @@
+/* Allgemeine Stile */
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: #2a2e35;
+  color: #cfd8dc;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding-top: 60px;
+}
+
+.editor {
+  display: flex;
+  flex: 1;
+  padding: 20px;
+  background-color: #27343b;
+  overflow: hidden;
+  height: calc(100vh - 60px);
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+  background-color: #3b4c56;
+  padding: 15px;
+  margin-right: 20px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #4c5d73;
+  overflow-y: auto;
+  height: 100%;
+  border-radius: 8px; /* Runde Ecken für die Sidebar */
+}
+
+.workspace-container {
+  display: flex;
+  flex-direction: column;
+  background-color: #3e4c55;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #4c5d73;
+  flex: 1;
+  height: 100%;
+  border-radius: 8px; /* Runde Ecken für den Workspace */
+}
+
+.workspace {
+  flex: 1;
+  background-color: #45525d;
+  border: 1px solid #5a6a73;
+  border-radius: 12px;
+  padding: 20px; /* Mehr Padding für den Workspace */
+  overflow-y: auto;
+}
+
+/* Status-Ampel-Farben für die Symbole */
+.status-icon {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+/* Entfernt die Standard-Einrückung für Listen */
+ul {
+  padding-inline-start: 0; /* Entfernt die 40px Padding */
+  margin-block-start: 0;    /* Entfernt den oberen Rand */
+  margin-block-end: 0;      /* Entfernt den unteren Rand */
+  list-style-type: none;    /* Entfernt die Aufzählungszeichen */
+}
+
+/* Optional: Stil für deine spezielle Liste */
+#executionList {
+  padding-inline-start: 10px; /* Fügt ein eigenes Padding hinzu */
+  list-style-type: none;      /* Entfernt die Aufzählungszeichen */
+}
+
+.status-success {
+  background-color: #27ae60; /* Grün für erfolgreich */
+}
+
+.status-in-test {
+  background-color: #f39c12; /* Gelb für in Test */
+}
+
+.status-failed {
+  background-color: #e74c3c; /* Rot für fehlgeschlagen */
+}
+
+/* Status-Text */
+.status-text {
+  color: #cfd8dc; /* Standardtextfarbe */
+  font-size: 16px; /* Größerer Text für bessere Lesbarkeit */
+  flex: 1; /* Nimmt den restlichen Platz ein */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+
+
+#executionList li {
+  background-color: #4c5d73;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  display: flex;
+  align-items: center;
+}
+
+#executionList li:hover {
+  background-color: #576a7f;
+}
+
+/* Logs- und Fehleranzeige */
+#executionDetails h3 {
+  margin-top: 0;
+  color: #ecf0f1; /* Hellerer Farbton für den Status */
+}
+
+#executionDetails ul {
+  list-style: none;
+}
+
+#executionDetails ul li {
+  margin-bottom: 5px;
+}
+
+/* Jira-Ticket-Button */
+button.create-ticket-btn {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 10px 16px; /* Größere, gleichmäßige Polsterung */
+  font-size: 14px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.3s;
+  display: inline-block;
+  margin-top: 10px;
+  text-align: center; /* Zentriere den Text */
+}
+
+button.create-ticket-btn:hover {
+  background-color: #2980b9;
+}
+
+button.create-ticket-btn:active {
+  transform: scale(0.98);
+}
+
+/* Modal für Erfolgsnachricht */
+#modal {
+  display: none;
+  position: fixed;
+  z-index: 1001;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #2a2e35;
+  color: #cfd8dc;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+#modal button {
+  background-color: #27ae60;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 10px 16px; /* Gleiche Polsterung wie bei den anderen Buttons */
+  font-size: 14px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  margin-top: 15px;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+#modal button:hover {
+  background-color: #2ecc71;
+}
+
+#modal button:active {
+  transform: scale(0.98);
+}
+
+/* HEADER */
+.header {
+  background-color: #1f2b38;
+  color: #eceff1;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 10;
+  box-sizing: border-box;
+}
+
+.header-menu {
+  display: flex;
+  gap: 20px;
+  padding-left: 20px;
+}
+
+.header h1 {
+  font-size: 20px;
+  font-weight: 500;
+  display: flex;
+  align-items: center; /* Zentriert das Logo vertikal */
+}
+
+.header-menu .dropdown {
+  position: relative;
+}
+
+.header-menu .dropbtn {
+  color: #eceff1;
+  cursor: pointer;
+  font-size: 16px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  text-decoration: none; /* Entfernt die Standard-Textunterstreichung */
+  transition: color 0.3s;
+}
+
+.header-menu .dropbtn:hover {
+  color: #3498db;
+}
+
+.header-menu .dropdown-content {
+  display: none;
+  position: absolute;
+  left: 0;
+  background-color: #34495e;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 10px 0;
+}
+
+.header-menu .dropdown-content button {
+  background-color: transparent;
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
+}
+
+.header-menu .dropdown-content button:hover {
+  background-color: #3b5998;
+}
+
+.header-menu:hover .dropdown-content {
+  display: block;
+  animation: dropdownFadeIn 0.3s ease;
+}
+
+/* Dropdown für den Statusfilter */
+#statusFilter {
+  width: 100%;
+  padding: 8px 16px;
+  font-size: 16px;
+  color: #cfd8dc;
+  background-color: #34495e;
+  border: 1px solid #4c5d73;
+  border-radius: 8px;
+  appearance: none; /* Entfernt das Standard-Dropdown-Pfeil-Icon */
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 15px;
+  margin-top: 15px;
+}
+
+#statusFilter:hover {
+  background-color: #3b5998;
+}
+
+#statusFilter option {
+  background-color: #34495e;
+  color: #cfd8dc;
+  padding: 8px;
+}
+
+#statusFilter option:checked {
+  background-color: #3b5998;
+}
+
+/* Container für den Dropdown-Wrapper */
+.dropdown-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* Pfeil-Icon für das Dropdown */
+.dropdown-wrapper::after {
+  content: '\25BC'; /* Unicode für ein nach unten zeigendes Pfeil-Icon */
+  position: absolute;
+  right: 16px;
+  pointer-events: none;
+  color: #cfd8dc;
+}
+
+/* Anpassung für die Dropdown-Optionen */
+.timestamp-text {
+  float: right;
+  font-size: 14px;
+  color: #bdc3c7;
+}
+
+
+
+/* Responsivität */
+@media (max-width: 768px) {
+  .container {
+    padding: 10px;
+  }
+
+  .editor {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    min-width: 100%;
+    margin-right: 0;
+    margin-bottom: 20px;
+    max-height: none;
+  }
+
+  .workspace-container {
+    width: 100%;
+  }
+}

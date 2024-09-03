@@ -18,13 +18,12 @@ body {
   flex-direction: column;
   padding-top: 60px;
 }
-
+/* HEADER */
 .header {
   background-color: #1f2b38;
   color: #eceff1;
   padding: 10px 15px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
   position: fixed;
@@ -34,45 +33,74 @@ body {
   box-sizing: border-box;
 }
 
-
+.header-menu {
+  display: flex;
+  gap: 20px;
+  padding-left: 20px;
+}
 
 .header h1 {
   font-size: 20px;
   font-weight: 500;
-}
-
-.header-buttons {
   display: flex;
-  gap: 8px; /* Maintain a small, consistent gap between buttons */
-  flex-wrap: wrap; /* Allow buttons to wrap if there isn't enough horizontal space */
-  justify-content: flex-end; /* Ensure buttons are aligned to the right side */
+  align-items: center; /* Zentriert das Logo vertikal */
 }
 
-.header-buttons button {
-  color: white;
-  border: none;
+.header-menu .dropdown {
+  position: relative;
+}
+
+.header-menu .dropbtn {
+  color: #eceff1;
   cursor: pointer;
-  border-radius: 4px;
-  padding: 8px 12px;
-  font-size: 14px;
+  font-size: 16px;
   font-family: 'Courier New', Courier, monospace;
   font-weight: bold;
-  transition: background-color 0.3s, transform 0.3s;
-  background-color: #3498db;
-  flex-shrink: 0; /* Prevent buttons from shrinking when space is limited */
+  text-decoration: none; /* Entfernt die Standard-Textunterstreichung */
+  transition: color 0.3s;
 }
 
-.header-buttons button:hover {
-  background-color: #2980b9;
+.header-menu .dropbtn:hover {
+  color: #3498db;
 }
 
-.header-buttons button:active {
-  transform: scale(0.98); /* Slight scale down on click */
+.header-menu .dropdown-content {
+  display: none;
+  position: absolute;
+  left: 0;
+  background-color: #34495e;
+  min-width: 200px;
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+  z-index: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  padding: 10px 0;
 }
 
-.header-buttons button i {
-  margin-right: 5px; /* Add spacing between icon and text */
+.header-menu .dropdown-content button {
+  background-color: transparent;
+  padding: 10px 20px;
+  color: white;
+  border: none;
+  text-align: left;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: background-color 0.3s ease;
 }
+
+.header-menu .dropdown-content button:hover {
+  background-color: #3b5998;
+}
+
+/* Nur das Dropdown öffnen, über das gehovt wird */
+.header-menu .dropdown:hover .dropdown-content {
+  display: block;
+  animation: dropdownFadeIn 0.3s ease;
+}
+
 
 .editor {
   display: flex;
@@ -704,6 +732,8 @@ dialog {
   top: 10px;
   right: 10px;
 }
+
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

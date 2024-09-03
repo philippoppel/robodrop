@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RoboDrop</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="css/dashboard.css">
+  <link rel="icon" href="robot-solid.svg" type="image/svg+xml">
+</head>
+<body>
+<div id="modal">
+  <p>Das Jira-Ticket wurde erfolgreich erstellt!</p>
+  <button id="closeModalBtn">Schließen</button>
+</div>
+<div class="container">
+  <header class="header">
+    <h1 title="RoboDrop - Dein Testfall-Editor"><i class="fas fa-robot"></i> RoboDrop</h1>
+    <div class="header-menu">
+      <div class="dropdown">
+        <span class="dropbtn">Menü</span>
+        <div class="dropdown-content">
+          <button class="btn-header" title="Wechsle zum Editor" onclick="window.location.href='index.html'">Editor</button>
+          <button class="btn-header" title="Wechsle zum Admin Dashboard" onclick="window.location.href='dashboard.html'">Dashboard</button>
+          <button class="btn-header" title="Wechsle zum Wiki" onclick="window.location.href='wiki.html'">Wiki</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="editor">
+    <div class="sidebar">
+      <label for="statusFilter">Filter nach Status:</label>
+      <div class="dropdown-wrapper">
+        <select id="statusFilter">
+          <option value="all">Alle</option>
+          <option value="erfolgreich">Erfolgreich</option>
+          <option value="in test">In Test</option>
+          <option value="fehlgeschlagen">Fehlgeschlagen</option>
+        </select>
+      </div>
+      <ul id="executionList"></ul>
+    </div>
+    <div class="workspace-container">
+      <div class="workspace">
+        <h2 id="executionTitle">Wähle eine Ausführung</h2>
+        <div id="executionDetails"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

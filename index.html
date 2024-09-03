@@ -37,14 +37,50 @@
 <div class="container">
   <header class="header">
     <h1 title="RoboDrop - Dein Testfall-Editor"><i class="fas fa-robot"></i> RoboDrop</h1>
-    <div class="header-buttons">
-      <button id="add-test-case" class="btn-header" title="Erstelle einen neuen Testfall"><i class="fas fa-plus"></i> Neuer Test</button>
-      <button id="addKeyword" class="btn-header" title="Füge ein neues Keyword hinzu"><i class="fa-solid fa-terminal"></i> Neues Keyword</button>
-      <button id="resetState" class="btn-header reset-button" title="Setze den aktuellen Zustand zurück"><i class="fas fa-redo"></i> Zurücksetzen</button>
-      <button class="btn-header upload-button" title="Lade eine Datei im .robot-Format hoch"><i class="fas fa-file-upload"></i> Datei Hochladen</button>
-      <button id="saveStateButton" class="btn-header save-button" title="Speichere den aktuellen Zustand"><i class="fas fa-save"></i> Speichern</button>
-      <button class="btn-header export-button" title="Exportiere den aktuellen Testfall"><i class="fas fa-download"></i> Exportieren   </button>
-      <input type="file" id="fileInput" accept=".robot" style="display: none;" title="Wähle eine .robot-Datei zum Hochladen aus">
+    <div class="header-menu">
+      <div class="dropdown">
+        <span class="dropbtn">Menü</span>
+        <div class="dropdown-content">
+          <button class="btn-header" title="Wechsle zum Editor" onclick="window.location.href='index.html'">
+            Editor
+          </button>
+          <button class="btn-header" title="Wechsle zum Admin Dashboard" onclick="window.location.href='dashboard.html'">
+            Dashboard
+          </button>
+          <button class="btn-header" title="Wechsle zum Wiki" onclick="window.location.href='wiki.html'">
+            Wiki
+          </button>
+        </div>
+      </div>
+      <div class="dropdown">
+        <span class="dropbtn">Aktionen</span>
+        <div class="dropdown-content">
+          <button id="add-test-case" class="btn-header" title="Erstelle einen neuen Testfall">
+            <i class="fas fa-plus"></i> Neuer Test
+          </button>
+          <button id="addKeyword" class="btn-header" title="Füge ein neues Keyword hinzu">
+            <i class="fa-solid fa-terminal"></i> Neues Keyword
+          </button>
+          <button id="resetState" class="btn-header reset-button" title="Setze den aktuellen Zustand zurück">
+            <i class="fas fa-redo"></i> Zurücksetzen
+          </button>
+        </div>
+      </div>
+      <div class="dropdown">
+        <span class="dropbtn">Datei</span>
+        <div class="dropdown-content">
+          <button class="btn-header upload-button" title="Lade eine Datei im .robot-Format hoch">
+            <i class="fas fa-file-upload"></i> Datei Hochladen
+          </button>
+          <button id="saveStateButton" class="btn-header save-button" title="Speichere den aktuellen Zustand">
+            <i class="fas fa-save"></i> Speichern
+          </button>
+          <button class="btn-header export-button" title="Exportiere den aktuellen Testfall">
+            <i class="fas fa-download"></i> Exportieren
+          </button>
+          <input type="file" id="fileInput" accept=".robot" style="display: none;" title="Wähle eine .robot-Datei zum Hochladen aus">
+        </div>
+      </div>
     </div>
   </header>
   <main class="editor">

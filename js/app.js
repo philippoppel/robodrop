@@ -154,7 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
         keywordElement.className = 'draggable';
         keywordElement.draggable = true;
         keywordElement.textContent = keyword.name;
-
+        keywordElement.title = keyword.help;
         keywordElement.dataset.name = keyword.name;
         keywordElement.dataset.args = JSON.stringify(keyword.args || []);
         keywordElement.dataset.values = JSON.stringify(keyword.values || {});
@@ -162,10 +162,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const actionButtons = document.createElement('div');
         actionButtons.className = 'action-buttons';
-
-        const helpIcon = document.createElement('button');
-        helpIcon.className = 'btn-info';
-        helpIcon.innerHTML = '<i class="fas fa-info-circle"></i>';
 
         const deleteButton = document.createElement('button');
         deleteButton.className = 'btn-delete';
@@ -565,6 +561,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const keywordTitle = document.createElement('div');
     keywordTitle.className = 'keyword-title';
     keywordTitle.textContent = command.name;
+    keywordTitle.title = command.help;
     newItem.appendChild(keywordTitle);
 
     const paramsDiv = document.createElement('div');
