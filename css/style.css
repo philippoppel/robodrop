@@ -478,6 +478,43 @@ textarea:focus {
   display: block !important; /* Force display block when .show is added */
 }
 
+.dialog-menu {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.dialog-menu .btn-confirm,
+.dialog-menu .btn-cancel {
+  background-color: #3498db;
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.3s;
+}
+
+.dialog-menu .btn-cancel {
+  background-color: lightseagreen;
+}
+
+.dialog-menu .btn-confirm:hover {
+  background-color: #2980b9;
+}
+
+.dialog-menu .btn-cancel:hover {
+  background-color: lightblue;
+}
+
+.dialog-menu .btn-confirm:active,
+.dialog-menu .btn-cancel:active {
+  transform: scale(0.98);
+}
 
 
 .keyword-list .keyword-item {
@@ -588,6 +625,12 @@ dialog {
   background-repeat: no-repeat;
   background-position: right 10px center;
   background-size: 10px;
+}
+
+.dialog-content select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+  outline: none;
 }
 
 .dialog-content select:focus {

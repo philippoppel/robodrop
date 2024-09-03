@@ -22,13 +22,21 @@ document.addEventListener('DOMContentLoaded', () => {
   keywordFilter.addEventListener('input', () => {
     const searchTerm = keywordFilter.value.trim().toLowerCase();
 
+    // Filtere Keywords, die im Namen, der Kategorie oder im Help-Text den Suchbegriff enthalten
     const filteredKeywords = allKeywords.filter(keyword =>
-      keyword.name.toLowerCase().includes(searchTerm)
+      keyword.name.toLowerCase().includes(searchTerm) ||
+      (keyword.category && keyword.category.toLowerCase().includes(searchTerm)) ||
+      (keyword.help && keyword.help.toLowerCase().includes(searchTerm))
     );
 
-    console.log(filteredKeywords);
-    renderKeywords(filteredKeywords, true);  // Dropdowns automatisch öffnen
+    // Wenn das Suchfeld leer ist, schließen wir alle Dropdowns
+    if (!searchTerm) {
+      renderKeywords(allKeywords, false);  // Alle Dropdowns schließen
+    } else {
+      renderKeywords(filteredKeywords, true);  // Dropdowns automatisch öffnen
+    }
   });
+
 
 
 
@@ -253,55 +261,67 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
 
+// Öffnet den Dialog zum Hinzufügen eines neuen Keywords
   const openAddKeywordDialog = () => {
-    const dialog = document.createElement('div');
-    dialog.className = 'dialog-overlay';
-    dialog.innerHTML = `
-      <div class="dialog-content">
-        <h2>Neues Keyword hinzufügen</h2>
-        <label for="keywordName">Name des Keywords:</label>
-        <input type="text" id="keywordName" placeholder="Name" />
-        <label for="keywordDescription">Beschreibung:</label>
-        <textarea id="keywordDescription" placeholder="Beschreibung"></textarea>
-        <label for="keywordArguments">Argumente (komma-getrennt):</label>
-        <input type="text" id="keywordArguments" placeholder="arg1, arg2, ..." />
-        <button class="btn-confirm">Hinzufügen</button>
-        <button class="btn-cancel">Abbrechen</button>
-      </div>`;
-    document.body.appendChild(dialog);
-    dialog.querySelector('.btn-confirm').onclick = () => {
+    const dialog = document.getElementById('addKeywordDialog');
+
+    // Kategorien in den Dialog einfügen
+    const categorySelect = dialog.querySelector('#keywordCategory');
+    const categories = ['Keine Kategorie', ...new Set(allKeywords.map(keyword => keyword.category || 'Unkategorisiert'))];
+
+    // Optionen dynamisch hinzufügen
+    categorySelect.innerHTML = categories.map(category => `<option value="${category}">${category}</option>`).join('');
+
+    dialog.showModal();
+
+    // Validierung und Bestätigung des Formulars
+    const confirmButton = dialog.querySelector('.btn-confirm');
+    confirmButton.onclick = (event) => {
+      event.preventDefault();
+
       const name = document.getElementById('keywordName').value.trim();
       const description = document.getElementById('keywordDescription').value.trim();
-      const args = document.getElementById('keywordArguments').value.split(',').map(arg => arg.trim()).filter(arg => arg);
-      if (name && description) addCustomKeyword(name, description, args);
-      dialog.remove();
+      const category = categorySelect.value || 'Keine Kategorie'; // Fallback auf 'Keine Kategorie'
+      const args = document.getElementById('keywordArguments').value
+        .split(',')
+        .map(arg => arg.trim())
+        .filter(arg => arg);
+
+      if (!name || !description || !category) {
+        alert('Bitte alle erforderlichen Felder ausfüllen.');
+        return;
+      }
+
+      addCustomKeyword(name, description, category, args);
+      dialog.close();
     };
-    dialog.querySelector('.btn-cancel').onclick = () => dialog.remove();
+
+    const cancelButton = dialog.querySelector('.btn-cancel');
+    cancelButton.onclick = () => dialog.close();
   };
 
-  const addCustomKeyword = (name, description, args) => {
+// Event Listener für den Button
+  document.getElementById('addKeyword').addEventListener('click', openAddKeywordDialog);
+
+// Funktion zum Hinzufügen eines neuen Keywords
+  const addCustomKeyword = (name, description, category, args) => {
     const formattedArgs = args.map(arg => `\${${arg}}`);
     const newKeyword = {
       name,
       args: formattedArgs,
       steps: [`Log    Hello, ${formattedArgs.join(' and ')}!`],
-      help: `TODO: ${description}`
+      help: `TODO: ${description}`,
+      category
     };
 
     allKeywords.push(newKeyword);
     renderKeywords(allKeywords);
     saveState(); // Zustand speichern
   };
+
   const addTestCase = () => {
     const id = `test-case-${Date.now()}`;
     testCases.push({ id, name: '', doc: '', commands: [] });
-    currentKeyword = {
-      name: trimmedLine,
-      args: [],
-      steps: [],
-      help: '',
-      category: currentCategory || 'Uncategorized'  // Setze die Kategorie oder 'Uncategorized'
-    };
     renderTestCaseList();
     selectTestCase(id);
     saveState();
@@ -389,20 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
       document.body.removeChild(dragImage);
     }, 0);
   }
-
-  const showHelpModal = (helpText) => {
-    let modal = document.getElementById('help-modal');
-    if (!modal) {
-      modal = document.createElement('div');
-      modal.id = 'help-modal';
-      modal.className = 'help-modal';
-      modal.innerHTML = `<div class="help-modal-content"><span class="help-modal-close">&times;</span><p>${helpText}</p></div>`;
-      document.body.appendChild(modal);
-      modal.querySelector('.help-modal-close').onclick = () => modal.style.display = 'none';
-      window.onclick = (e) => { if (e.target === modal) modal.style.display = 'none'; };
-    } else modal.querySelector('p').textContent = helpText;
-    modal.style.display = 'block';
-  };
 
   selectRobotButton.addEventListener('click', () => fileInput.click());
   resetStateButton.addEventListener('click', () => confirm('Möchten Sie wirklich den Zustand zurücksetzen?') && resetState());
