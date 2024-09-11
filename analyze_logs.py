@@ -15,11 +15,17 @@ def read_logs_from_xml(log_file_path):
   tree = ET.parse(log_file_path)
   root = tree.getroot()
 
-  # Alle Fehler in den Tests erfassen
+  # Alle Fehler in den Tests und Errors erfassen
   errors = []
+
+  # Erfasse Testfehler aus <status> tags
   for elem in root.iter('status'):
-    if 'fail' in elem.attrib['status']:
-      errors.append(elem.attrib['message'])
+    if 'status' in elem.attrib and elem.attrib['status'] == 'FAIL':
+      errors.append(elem.text if elem.text else elem.attrib.get('message', 'Unknown failure'))
+
+  # Erfasse Errors aus dem <errors> Abschnitt
+  for error in root.findall(".//errors/msg"):
+    errors.append(error.text)
 
   return errors
 
