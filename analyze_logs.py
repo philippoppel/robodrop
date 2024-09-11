@@ -98,12 +98,16 @@ def generate_human_friendly_report(report_data):
     report.append(f"Test Name: {test['name']}")
     test_status = "Erfolgreich" if test['status'].upper() == 'PASS' else "Fehlgeschlagen"
     report.append(f"Test Status: {test_status}")
-    report.append(f"Fehlerhafte Schritte:")
+    report.append(f"Schritte:")
 
-    # Only log failed steps
+    # Log every step (pass or fail)
     for step in test['steps']:
-      if step['status'].upper() == 'FAIL':
-        report.append(f"  - Schritt: {translate_message(step['name'])}")
+      step_status = "Erfolgreich" if step['status'].upper() == 'PASS' else "Fehlgeschlagen"
+      report.append(f"  - Schritt: {translate_message(step['name'])}")
+      report.append(f"    Status: {step_status}")
+
+      # If step failed, provide more details
+      if step_status == 'Fehlgeschlagen':
         error_category = categorize_log(" ".join(step['messages']))
         report.append(f"    Fehlerkategorie: {error_category}")
 
@@ -113,6 +117,12 @@ def generate_human_friendly_report(report_data):
           if simplified_message:
             report.append(f"    Detaillierter technischer Fehler: {simplified_message}")
             break  # Stop after the first relevant explanation
+      else:
+        # Show the most meaningful info for passed steps
+        for message in step['messages']:
+          translated_message = translate_message(message)
+          if translated_message:
+            report.append(f"    Info: {translated_message}")
 
     report.append("\n")
 
