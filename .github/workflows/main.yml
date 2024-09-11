@@ -4,54 +4,60 @@ on:
   push:
     branches:
       - main
-      - test-branch  # Trigger auf Push-Events im test-branch
+      - test-branch  # Trigger on push events in test-branch
 
 jobs:
   test-and-analyze:
     runs-on: ubuntu-latest
 
     steps:
-      # Schritt 1: Repository auschecken
+      # Step 1: Check out repository
       - name: Check out code
         uses: actions/checkout@v3
 
-      # Schritt 2: Python installieren
+      # Step 2: Set up Python
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: '3.x'
 
-      # Schritt 3: Abhängigkeiten installieren (falls nötig)
+      # Step 3: Install dependencies (if needed)
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
 
-      # Schritt 4: Tests ausführen und Logs generieren
+#      # Step 4: Clean /tests directory except MyLibrary.py
+#      - name: Clean tests directory except MyLibrary.py
+#        run: |
+#          find tests/ -type f ! -name 'MyLibrary.py' -delete
+
+      # Step 5: Run Robot tests and generate logs
       - name: Run Robot tests
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/tests
           robot --loglevel DEBUG --outputdir results tests/ || true
 
-      # Schritt 5: Zeige die generierten Logs (test_logs.txt)
+      # Step 6: Show the generated logs (output.xml)
       - name: Show Test Logs
         run: cat results/output.xml
 
-      # Schritt 6: Log Analyzer ausführen, um Fehlerkategorien zu bestimmen
+      # Step 7: Run Log Analyzer to categorize errors
       - name: Analyze Logs
         run: |
           python analyze_logs.py results/output.xml > error_report.txt
 
-      # Schritt 7: Fehlerbericht anzeigen
+      # Step 8: Show the error report
       - name: Show Error Report
         run: cat error_report.txt
 
-      # Schritt 8: Benachrichtigung durch Annotations hinzufügen
+      # Step 9: Add annotations for error report
       - name: Annotate Error Report
         run: |
           echo "::error file=error_report.txt::$(cat error_report.txt)"
 
-      # Schritt 9: Lade die Ergebnisse als Artefakte hoch
+      # Step 10: Upload the results as artifacts
       - name: Upload Robot Framework Logs
-        uses: actions/upload-artifact@v3  # Update to v3
+        uses: actions/upload-artifact@v3
         with:
           name: robot-logs
           path: results/
