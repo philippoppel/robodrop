@@ -30,16 +30,13 @@ Verursache Fehler
     Should Be True    1=2    Validierungsfehler
 
 *** Test Cases ***
-
-# Testfall 1: Erfolgreiche Kartenleseroperation
-[Documentation]  Testet, ob die Karte erfolgreich verbunden, gelesen und entfernt wird.
 Demo-Testfall1
+    [Documentation]  Testet, ob die Karte erfolgreich verbunden, gelesen und entfernt wird.
     Verbinde Karte Mit Leser    Ordinationskarte
     Lese Karte Aus    Ordinationskarte
     Prüfe Karte Erkannt    Ordinationskarte
     Starte Kartenleser Neu
 
-# Testfall 2: Fehlerbeispiel
-[Documentation]  Testet, ob die Karte erfolgreich verbunden, gelesen und entfernt wird.
 Demo-Testfall2
+    [Documentation]  Testet, ob die Karte erfolgreich verbunden, gelesen und entfernt wird.
     Verursache Fehler
