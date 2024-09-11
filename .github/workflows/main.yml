@@ -1,39 +1,60 @@
-name: Run Robot Tests
+name: Run Tests and Analyze Logs
 
 on:
   push:
     branches:
-      - test-branch
+      - main
 
 jobs:
-  test:
+  test-and-analyze:
     runs-on: ubuntu-latest
 
     steps:
-      # Check out the repository code
+      # Schritt 1: Repository auschecken
       - name: Check out code
         uses: actions/checkout@v3
 
-      # Install Python and Robot Framework
+      # Schritt 2: Python installieren
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: '3.x'
 
-      - name: Install Robot Framework and dependencies
+      # Schritt 3: Abhängigkeiten installieren (wenn nötig)
+      - name: Install dependencies
         run: |
-          pip install robotframework
-          pip install robotframework-seleniumlibrary
-          pip install robotframework-requests
+          pip install -r requirements.txt
 
-      # Run the Robot Framework test cases
+      # Schritt 4: Tests ausführen und Logs generieren
       - name: Run Robot tests
         run: |
-          robot test.robot
+          robot --loglevel DEBUG tests/ > test_logs.txt || true
 
-      # Upload test results
-      - name: Upload Robot logs
-        uses: actions/upload-artifact@v3
+      # Schritt 5: Log Analyzer ausführen, um Fehlerkategorien zu bestimmen
+      - name: Analyze Logs
+        run: |
+          python analyze_logs.py test_logs.txt > error_report.txt
+
+      # Schritt 6: Fehlerbericht anzeigen
+      - name: Show Error Report
+        run: cat error_report.txt
+
+      # Schritt 7: Benachrichtigung durch Annotations hinzufügen (einfachster Weg)
+      - name: Annotate Error Report
+        run: |
+          echo "::error file=error_report.txt::$(cat error_report.txt)"
+
+      # Optional: Kommentar im PR hinzufügen (wenn es ein PR ist)
+      - name: Comment on PR with Error Report
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v6
         with:
-          name: robot-results
-          path: output/
+          script: |
+            const fs = require('fs');
+            const errorReport = fs.readFileSync('error_report.txt', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## Error Report\n\`\`\`${errorReport}\`\`\``
+            });

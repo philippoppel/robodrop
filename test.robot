@@ -129,9 +129,13 @@ Wiederhole Stresstest Für N Stunden
 
 *** Test Cases ***
 
-Demo-Testfall
+Demo-Testfall1
     Verbinde Karte Mit Leser    Ordinationskarte
     Lese Karte Aus    Ordinationskarte
     Prüfe Karte Erkannt    Ordinationskarte
     Starte Kartenleser Neu
     Entferne Objekt Von Position    Ordinationskarte
+
+Demo-Testfall-Fehlschlag
+    Log    Dies ist ein absichtlicher Fehlschlag für den Log-Analyzer
+    Should Be Equal As Numbers    1    2    Dies sollte fehlschlagen, da 1 nicht gleich 2 ist
