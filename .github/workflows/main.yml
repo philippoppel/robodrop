@@ -28,10 +28,10 @@ jobs:
           pip install requests
           pip install robotframework-requests
 
-      # Step 4: Clean tests directory except MyLibrary.py
-      - name: Clean tests directory except MyLibrary.py
-        run: |
-          find tests/ -type f ! -name 'MyLibrary.py' -delete
+#      # Step 4: Clean tests directory except MyLibrary.py
+#      - name: Clean tests directory except MyLibrary.py
+#        run: |
+#          find tests/ -type f ! -name 'MyLibrary.py' -delete
 
       # Step 5: Run Robot tests and generate logs
       - name: Run Robot tests
