@@ -15,19 +15,41 @@ def read_logs_from_xml(log_file_path):
   tree = ET.parse(log_file_path)
   root = tree.getroot()
 
-  # Alle Fehler in den Tests und Errors erfassen
-  errors = []
+  # Erfasse Testfehler und Testinformationen
+  report_data = []
 
-  # Erfasse Testfehler aus <status> tags
-  for elem in root.iter('status'):
-    if 'status' in elem.attrib and elem.attrib['status'] == 'FAIL':
-      errors.append(elem.text if elem.text else elem.attrib.get('message', 'Unknown failure'))
+  for test_case in root.iter('test'):
+    test_info = {
+      'id': test_case.attrib.get('id', 'Unknown ID'),
+      'name': test_case.attrib.get('name', 'Unknown Test'),
+      'status': None,
+      'steps': []
+    }
 
-  # Erfasse Errors aus dem <errors> Abschnitt
-  for error in root.findall(".//errors/msg"):
-    errors.append(error.text)
+    # Loop through each keyword (kw) inside the test
+    for kw in test_case.iter('kw'):
+      step_info = {
+        'name': kw.attrib.get('name', 'Unknown Step'),
+        'status': None,
+        'messages': []
+      }
 
-  return errors
+      # Fetch the status and message for each step
+      for status in kw.iter('status'):
+        step_info['status'] = status.attrib.get('status', 'Unknown status')
+
+      for msg in kw.iter('msg'):
+        step_info['messages'].append(msg.text.strip() if msg.text else "No message")
+
+      test_info['steps'].append(step_info)
+
+    # Get the overall test case status
+    for status in test_case.iter('status'):
+      test_info['status'] = status.attrib.get('status', 'Unknown')
+
+    report_data.append(test_info)
+
+  return report_data
 
 # Log-Meldung kategorisieren
 def categorize_log(log_message):
@@ -36,34 +58,39 @@ def categorize_log(log_message):
       return category
   return "Unbekannter Fehler"
 
-# Logs analysieren
-def analyze_logs(logs):
-  categorized_errors = []
+# Report generieren
+def generate_human_friendly_report(report_data):
+  report = []
 
-  for log in logs:
-    category = categorize_log(log)
-    categorized_errors.append((log, category))
+  for test in report_data:
+    report.append(f"Test Case ID: {test['id']}")
+    report.append(f"Test Name: {test['name']}")
+    report.append(f"Test Status: {test['status'].upper()}")
+    report.append(f"Steps Executed:")
 
-  return categorized_errors
+    for step in test['steps']:
+      step_status = step['status'].upper()
+      report.append(f"  - Step: {step['name']}")
+      report.append(f"    Status: {step_status}")
+      if step_status == 'FAIL':
+        # For failed steps, categorize and explain the failure
+        for message in step['messages']:
+          error_category = categorize_log(message)
+          report.append(f"    Error Category: {error_category}")
+          report.append(f"    Message: {message}")
+      else:
+        # Show information for passed steps
+        for message in step['messages']:
+          report.append(f"    Info: {message}")
 
-# Bericht erstellen
-def generate_report(categorized_errors):
-  report = {}
+    report.append("\n")
 
-  for log, category in categorized_errors:
-    if category not in report:
-      report[category] = []
-    report[category].append(log)
-
-  return report
+  return "\n".join(report)
 
 # Ergebnisse anzeigen oder in eine Datei schreiben
-def write_report(report, output_file):
+def write_report_to_file(report_content, output_file):
   with open(output_file, 'w') as f:
-    for category, logs in report.items():
-      f.write(f"\nKategorie: {category}\n")
-      for log in logs:
-        f.write(f"  - {log.strip()}\n")
+    f.write(report_content)
 
 if __name__ == "__main__":
   if len(sys.argv) != 2:
@@ -71,7 +98,6 @@ if __name__ == "__main__":
     sys.exit(1)
 
   log_file = sys.argv[1]
-  logs = read_logs_from_xml(log_file)
-  categorized_errors = analyze_logs(logs)
-  report = generate_report(categorized_errors)
-  write_report(report, "error_report.txt")
+  report_data = read_logs_from_xml(log_file)
+  human_friendly_report = generate_human_friendly_report(report_data)
+  write_report_to_file(human_friendly_report, "error_report.txt")

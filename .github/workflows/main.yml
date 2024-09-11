@@ -13,11 +13,11 @@ jobs:
     steps:
       # Step 1: Check out repository
       - name: Check out code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4  # Updated to v4
 
       # Step 2: Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v3
+        uses: actions/setup-python@v4  # Updated to v4
         with:
           python-version: '3.x'
 
@@ -28,10 +28,10 @@ jobs:
           pip install requests
           pip install robotframework-requests
 
-#      # Step 4: Clean tests directory except MyLibrary.py
-#      - name: Clean tests directory except MyLibrary.py
-#        run: |
-#          find tests/ -type f ! -name 'MyLibrary.py' -delete
+      #      # Step 4: Clean tests directory except MyLibrary.py
+      #      - name: Clean tests directory except MyLibrary.py
+      #        run: |
+      #          find tests/ -type f ! -name 'MyLibrary.py' -delete
 
       # Step 5: Run Robot tests and generate logs
       - name: Run Robot tests
@@ -59,7 +59,7 @@ jobs:
 
       # Step 10: Upload the results as artifacts
       - name: Upload Robot Framework Logs
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4  # Updated to v4
         with:
           name: robot-logs
           path: results/
