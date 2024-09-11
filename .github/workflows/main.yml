@@ -26,7 +26,11 @@ jobs:
         run: |
           robot --loglevel DEBUG tests/ > test_logs.txt || true
 
-      # Schritt 5: Log Analyzer ausführen, um Fehlerkategorien zu bestimmen
+      - name: Show Test Logs
+        run: cat test_logs.txt
+
+
+    # Schritt 5: Log Analyzer ausführen, um Fehlerkategorien zu bestimmen
       - name: Analyze Logs
         run: |
           python analyze_logs.py test_logs.txt > error_report.txt
