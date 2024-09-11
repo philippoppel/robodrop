@@ -96,30 +96,23 @@ def generate_human_friendly_report(report_data):
   for test in report_data:
     report.append(f"Test Case ID: {test['id']}")
     report.append(f"Test Name: {test['name']}")
-    report.append(f"Test Status: {test['status'].upper()}")
-    report.append(f"Steps Executed:")
+    test_status = "Erfolgreich" if test['status'].upper() == 'PASS' else "Fehlgeschlagen"
+    report.append(f"Test Status: {test_status}")
+    report.append(f"Fehlerhafte Schritte:")
 
+    # Only log failed steps
     for step in test['steps']:
-      step_status = step['status'].upper()
-      report.append(f"  - Step: {translate_message(step['name'])}")
-      report.append(f"    Status: {step_status}")
-
-      if step_status == 'FAIL':
+      if step['status'].upper() == 'FAIL':
+        report.append(f"  - Schritt: {translate_message(step['name'])}")
         error_category = categorize_log(" ".join(step['messages']))
-        report.append(f"    Error Category: {error_category}")
+        report.append(f"    Fehlerkategorie: {error_category}")
 
-        # Provide simplified explanation for the first relevant failure
+        # Provide detailed technical explanation for the failure
         for message in step['messages']:
           simplified_message = simplify_message(translate_message(message))
           if simplified_message:
-            report.append(f"    Explanation: {simplified_message}")
+            report.append(f"    Detaillierter technischer Fehler: {simplified_message}")
             break  # Stop after the first relevant explanation
-      else:
-        # Show the most meaningful info for passed steps
-        for message in step['messages']:
-          translated_message = translate_message(message)
-          if translated_message:
-            report.append(f"    Info: {translated_message}")
 
     report.append("\n")
 
