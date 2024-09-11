@@ -136,6 +136,6 @@ Demo-Testfall1
     Starte Kartenleser Neu
     Entferne Objekt Von Position    Ordinationskarte
 
-Demo-Testfall-Fehlschlag
-    Log    Dies ist ein absichtlicher Fehlschlag für den Log-Analyzer
-    Should Be Equal As Numbers    1    2    Dies sollte fehlschlagen, da 1 nicht gleich 2 ist
+Demo-Testfall
+    [Documentation]    Dieser Test sollte absichtlich fehlschlagen
+    Should Be Equal As Numbers    1    2    Dieser Test sollte fehlschlagen

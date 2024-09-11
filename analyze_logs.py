@@ -1,4 +1,5 @@
 import re
+import xml.etree.ElementTree as ET
 import sys
 
 # Fehlerkategorien und entsprechende RegEx-Muster
@@ -9,11 +10,18 @@ error_patterns = {
   "Validierungsfehler": r"(Should Be Equal As Numbers|assertion|comparison failed)",  # Kategorie für Testfehler
 }
 
-# Logs aus Datei einlesen
-def read_logs(log_file_path):
-  with open(log_file_path, 'r') as file:
-    logs = file.readlines()
-  return logs
+# Logs aus XML-Datei einlesen und analysieren
+def read_logs_from_xml(log_file_path):
+  tree = ET.parse(log_file_path)
+  root = tree.getroot()
+
+  # Alle Fehler in den Tests erfassen
+  errors = []
+  for elem in root.iter('status'):
+    if 'fail' in elem.attrib['status']:
+      errors.append(elem.attrib['message'])
+
+  return errors
 
 # Log-Meldung kategorisieren
 def categorize_log(log_message):
@@ -57,7 +65,7 @@ if __name__ == "__main__":
     sys.exit(1)
 
   log_file = sys.argv[1]
-  logs = read_logs(log_file)
+  logs = read_logs_from_xml(log_file)
   categorized_errors = analyze_logs(logs)
   report = generate_report(categorized_errors)
   write_report(report, "error_report.txt")

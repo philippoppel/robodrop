@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - test-branch  # Füge hier test-branch hinzu, damit der Workflow auf Push-Events im test-branch lauscht
+      - test-branch  # Trigger auf Push-Events im test-branch
 
 jobs:
   test-and-analyze:
@@ -21,40 +21,37 @@ jobs:
         with:
           python-version: '3.x'
 
+      # Schritt 3: Abhängigkeiten installieren (falls nötig)
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+
       # Schritt 4: Tests ausführen und Logs generieren
       - name: Run Robot tests
         run: |
-          robot --loglevel DEBUG tests/ > test_logs.txt || true
+          robot --loglevel DEBUG --outputdir results tests/ || true
 
+      # Schritt 5: Zeige die generierten Logs (test_logs.txt)
       - name: Show Test Logs
-        run: cat test_logs.txt
+        run: cat results/output.xml
 
-
-    # Schritt 5: Log Analyzer ausführen, um Fehlerkategorien zu bestimmen
+      # Schritt 6: Log Analyzer ausführen, um Fehlerkategorien zu bestimmen
       - name: Analyze Logs
         run: |
-          python analyze_logs.py test_logs.txt > error_report.txt
+          python analyze_logs.py results/output.xml > error_report.txt
 
-      # Schritt 6: Fehlerbericht anzeigen
+      # Schritt 7: Fehlerbericht anzeigen
       - name: Show Error Report
         run: cat error_report.txt
 
-      # Schritt 7: Benachrichtigung durch Annotations hinzufügen (einfachster Weg)
+      # Schritt 8: Benachrichtigung durch Annotations hinzufügen
       - name: Annotate Error Report
         run: |
           echo "::error file=error_report.txt::$(cat error_report.txt)"
 
-      # Optional: Kommentar im PR hinzufügen (wenn es ein PR ist)
-      - name: Comment on PR with Error Report
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v6
+      # Schritt 9: Lade die Ergebnisse als Artefakte hoch
+      - name: Upload Robot Framework Logs
+        uses: actions/upload-artifact@v2
         with:
-          script: |
-            const fs = require('fs');
-            const errorReport = fs.readFileSync('error_report.txt', 'utf8');
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `## Error Report\n\`\`\`${errorReport}\`\`\``
-            });
+          name: robot-logs
+          path: results/
