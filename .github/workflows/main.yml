@@ -14,11 +14,11 @@ jobs:
     steps:
       # Check out the repository code
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       # Install Python and Robot Framework
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v3
         with:
           python-version: '3.x'
 
@@ -31,9 +31,9 @@ jobs:
         run: |
           robot experteninterview.robot
 
-      # Upload test results (optional)
+      # Upload test results
       - name: Upload Robot logs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: robot-results
           path: output/
