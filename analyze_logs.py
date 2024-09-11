@@ -23,7 +23,7 @@ def read_logs_from_xml(log_file_path):
       'id': test_case.attrib.get('id', 'Unknown ID'),
       'name': test_case.attrib.get('name', 'Unknown Test'),
       'status': None,
-      'failed_steps': [],
+      'steps': [],
     }
 
     # Get the overall test case status
@@ -35,7 +35,7 @@ def read_logs_from_xml(log_file_path):
       step_info = {
         'name': kw.attrib.get('name', 'Unknown Step'),
         'status': None,
-        'messages': []
+        'messages': [],
       }
 
       for status in kw.iter('status'):
@@ -45,8 +45,7 @@ def read_logs_from_xml(log_file_path):
         msg_text = msg.text.strip() if msg.text else "No message"
         step_info['messages'].append(msg_text)
 
-      if step_info['status'].upper() == 'FAIL':
-        test_info['failed_steps'].append(step_info)
+      test_info['steps'].append(step_info)
 
     report_data.append(test_info)
 
@@ -67,6 +66,8 @@ def simplify_message(message):
     return "The script returned an error during execution."
   if "ModuleNotFoundError" in message:
     return "A required module could not be found."
+  if "Argument types" in message:
+    return "There was a mismatch in the expected argument types."
   return message
 
 # Report generieren
@@ -77,21 +78,27 @@ def generate_human_friendly_report(report_data):
     report.append(f"Test Case ID: {test['id']}")
     report.append(f"Test Name: {test['name']}")
     report.append(f"Test Status: {test['status'].upper()}")
+    report.append(f"Steps Executed:")
 
-    if test['status'].upper() == 'FAIL':
-      report.append(f"Failed Steps:")
+    for step in test['steps']:
+      step_status = step['status'].upper()
+      report.append(f"  - Step: {step['name']}")
+      report.append(f"    Status: {step_status}")
 
-      for step in test['failed_steps']:
-        report.append(f"  - Step: {step['name']}")
+      if step_status == 'FAIL':
         error_category = categorize_log(" ".join(step['messages']))
         report.append(f"    Error Category: {error_category}")
 
-        # Use the first meaningful failure message for explanation
+        # Provide simplified explanation for the first relevant failure
         for message in step['messages']:
           simplified_message = simplify_message(message)
           if simplified_message:
             report.append(f"    Explanation: {simplified_message}")
             break  # Stop after the first relevant explanation
+      else:
+        # Show the most meaningful info for passed steps
+        for message in step['messages']:
+          report.append(f"    Info: {simplify_message(message)}")
 
     report.append("\n")
 
