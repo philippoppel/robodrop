@@ -81,6 +81,13 @@ def simplify_message(message):
     return "Es gab einen Fehler bei den erwarteten Werten."
   return message
 
+# Log-Meldung kategorisieren
+def categorize_log(log_message):
+  for category, pattern in error_patterns.items():
+    if re.search(pattern, log_message, re.IGNORECASE):
+      return category
+  return "Unbekannter Fehler"  # Default category if no match is found
+
 
 # Report generieren
 def generate_human_friendly_report(report_data):
