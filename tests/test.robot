@@ -23,8 +23,11 @@ Prüfe Karte Erkannt
 
 Starte Kartenleser Neu
     Log    Starte den Kartenleser neu
-    ${status} =    Run Process    python3    ${CURDIR}/script.py
     Should Be Equal As Strings    ${status.stdout}    Skript erfolgreich ausgeführt
+
+Verursache Fehler
+    Log    Löse Fehler aus
+    Should Be True    1=2    Validierungsfehler
 
 *** Test Cases ***
 
@@ -35,3 +38,8 @@ Demo-Testfall1
     Lese Karte Aus    Ordinationskarte
     Prüfe Karte Erkannt    Ordinationskarte
     Starte Kartenleser Neu
+
+# Testfall 2: Fehlerbeispiel
+[Documentation]  Testet, ob die Karte erfolgreich verbunden, gelesen und entfernt wird.
+Demo-Testfall2
+    Verursache Fehler
