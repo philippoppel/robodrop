@@ -31,7 +31,7 @@ jobs:
       # Run the Robot Framework test cases
       - name: Run Robot tests
         run: |
-          robot experteninterview.robot
+          robot test.robot
 
       # Upload test results
       - name: Upload Robot logs
