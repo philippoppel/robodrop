@@ -10,6 +10,7 @@ error_patterns = {
   "Validierungsfehler": r"(Should Be Equal As Numbers|assertion|comparison failed)",  # Kategorie für Testfehler
 }
 
+
 # Logs aus XML-Datei einlesen und analysieren
 def read_logs_from_xml(log_file_path):
   tree = ET.parse(log_file_path)
@@ -51,24 +52,35 @@ def read_logs_from_xml(log_file_path):
 
   return report_data
 
-# Log-Meldung kategorisieren
-def categorize_log(log_message):
-  for category, pattern in error_patterns.items():
-    if re.search(pattern, log_message, re.IGNORECASE):
-      return category
-  return "Unbekannter Fehler"
 
-# Simplifying log messages for errors
+# Translate technical terms into human-friendly language
+def translate_message(message):
+  translations = {
+    "${erkannt} = True": "Die Karte wurde erfolgreich erkannt.",
+    "${erkannt} = False": "Die Karte wurde nicht erkannt.",
+    "${gelesen} = True": "Die Karte wurde erfolgreich ausgelesen.",
+    "${status.stdout} = Hallo von script.py!": "Das Skript hat erfolgreich ausgeführt und 'Hallo von script.py!' zurückgegeben.",
+    "Verbinde Ordinationskarte mit dem Kartenleser": "Die Ordinationskarte wird mit dem Kartenleser verbunden.",
+    "Lese Ordinationskarte ein": "Die Ordinationskarte wird eingelesen.",
+    "Entferne Ordinationskarte von der aktuellen Position": "Die Ordinationskarte wird von der aktuellen Position entfernt.",
+    "There was a mismatch in the expected argument types.": "Es gab einen Fehler bei den erwarteten Werten."
+  }
+
+  return translations.get(message, message)  # Return the translated message if available, otherwise return original
+
+
+# Simplify log messages for errors
 def simplify_message(message):
   if "1.0 != 2.0" in message:
-    return "The values do not match as expected."
+    return "Die Werte stimmen nicht überein."
   if "rc 2" in message:
-    return "The script returned an error during execution."
+    return "Das Skript hat einen Fehler zurückgegeben."
   if "ModuleNotFoundError" in message:
-    return "A required module could not be found."
+    return "Ein erforderliches Modul wurde nicht gefunden."
   if "Argument types" in message:
-    return "There was a mismatch in the expected argument types."
+    return "Es gab einen Fehler bei den erwarteten Werten."
   return message
+
 
 # Report generieren
 def generate_human_friendly_report(report_data):
@@ -82,7 +94,7 @@ def generate_human_friendly_report(report_data):
 
     for step in test['steps']:
       step_status = step['status'].upper()
-      report.append(f"  - Step: {step['name']}")
+      report.append(f"  - Step: {translate_message(step['name'])}")
       report.append(f"    Status: {step_status}")
 
       if step_status == 'FAIL':
@@ -91,23 +103,27 @@ def generate_human_friendly_report(report_data):
 
         # Provide simplified explanation for the first relevant failure
         for message in step['messages']:
-          simplified_message = simplify_message(message)
+          simplified_message = simplify_message(translate_message(message))
           if simplified_message:
             report.append(f"    Explanation: {simplified_message}")
             break  # Stop after the first relevant explanation
       else:
         # Show the most meaningful info for passed steps
         for message in step['messages']:
-          report.append(f"    Info: {simplify_message(message)}")
+          translated_message = translate_message(message)
+          if translated_message:
+            report.append(f"    Info: {translated_message}")
 
     report.append("\n")
 
   return "\n".join(report)
 
+
 # Ergebnisse anzeigen oder in eine Datei schreiben
 def write_report_to_file(report_content, output_file):
   with open(output_file, 'w') as f:
     f.write(report_content)
+
 
 if __name__ == "__main__":
   if len(sys.argv) != 2:
