@@ -21,11 +21,6 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Schritt 3: Abhängigkeiten installieren (wenn nötig)
-      - name: Install dependencies
-        run: |
-          pip install -r requirements.txt
-
       # Schritt 4: Tests ausführen und Logs generieren
       - name: Run Robot tests
         run: |
