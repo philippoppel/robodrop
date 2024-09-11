@@ -14,19 +14,17 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
 
-      # Debugging step to confirm file location
-      - name: List files in the current directory
-        run: ls -R
-
       # Install Python and Robot Framework
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: '3.x'
 
-      - name: Install Robot Framework
+      - name: Install Robot Framework and dependencies
         run: |
           pip install robotframework
+          pip install robotframework-seleniumlibrary
+          pip install robotframework-requests
 
       # Run the Robot Framework test cases
       - name: Run Robot tests
