@@ -51,7 +51,7 @@ jobs:
 
       # Schritt 9: Lade die Ergebnisse als Artefakte hoch
       - name: Upload Robot Framework Logs
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Update to v3
         with:
           name: robot-logs
           path: results/
