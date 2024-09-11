@@ -43,19 +43,20 @@ jobs:
       - name: Show Test Logs
         run: cat results/output.xml
 
-      # Step 7: Run Log Analyzer to categorize errors
+      # Step to analyze logs and generate reports
       - name: Analyze Logs
         run: |
-          python analyze_logs.py results/output.xml > error_report.txt
+          python analyze_logs.py results/output.xml
 
       # Step 8: Show the error report
       - name: Show Error Report
         run: cat error_report.txt
 
-      # Step 9: Add annotations for error report
-      - name: Annotate Error Report
+      # Step to annotate only failed tests
+      - name: Annotate Failed Tests
+        if: failure()  # Only runs this step if a test has failed
         run: |
-          echo "::error file=error_report.txt::$(cat error_report.txt)"
+          echo "::error file=failed_tests_report.txt::$(cat failed_tests_report.txt)"
 
       # Step 10: Upload the results as artifacts
       - name: Upload Robot Framework Logs

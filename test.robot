@@ -129,6 +129,9 @@ Wiederhole Stresstest Für N Stunden
 
 *** Test Cases ***
 
+# Test Case 1: Successful card reader operation
+[Documentation]  This test ensures that the card reader successfully connects, reads the card, and restarts.
+[Tags]           Kartenoperation, Erfolgreich
 Demo-Testfall1
     Verbinde Karte Mit Leser    Ordinationskarte
     Lese Karte Aus    Ordinationskarte
@@ -136,6 +139,9 @@ Demo-Testfall1
     Starte Kartenleser Neu
     Entferne Objekt Von Position    Ordinationskarte
 
+# Test Case 2: Intentional failure test
+[Documentation]  This test is designed to fail by comparing two unequal values. It's used for validation purposes.
+[Tags]           Fehlerbehandlung, Absichtlich
 Demo-Testfall
-    [Documentation]    Dieser Test sollte absichtlich fehlschlagen
     Should Be Equal As Numbers    1    2    Dieser Test sollte fehlschlagen
+
