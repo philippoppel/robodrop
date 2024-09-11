@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - test-branch  # Füge hier test-branch hinzu, damit der Workflow auf Push-Events im test-branch lauscht
 
 jobs:
   test-and-analyze:
