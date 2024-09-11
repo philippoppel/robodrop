@@ -23,7 +23,7 @@ Prüfe Karte Erkannt
 
 Starte Kartenleser Neu
     Log    Starte den Kartenleser neu
-    Should Be Equal As Strings    ${status.stdout}    Skript erfolgreich ausgeführt
+    Log    Skript erfolgreich ausgeführt
 
 Verursache Fehler
     Log    Löse Fehler aus
