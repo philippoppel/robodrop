@@ -1,0 +1,39 @@
+name: Run Robot Tests
+
+# Trigger the workflow when pushing to the 'test-branch' or when a new branch is created
+on:
+  push:
+    branches:
+      - test-branch
+
+# Define the jobs for the workflow
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Check out the repository code
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      # Install Python and Robot Framework
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install Robot Framework
+        run: |
+          pip install robotframework
+
+      # Run the Robot Framework test cases
+      - name: Run Robot tests
+        run: |
+          robot experteninterview.robot
+
+      # Upload test results (optional)
+      - name: Upload Robot logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: robot-results
+          path: output/
