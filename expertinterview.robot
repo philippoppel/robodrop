@@ -127,45 +127,29 @@ Erwarte Fehlermeldung
     [Documentation]    Überprüft, ob eine spezifische Fehlermeldung angezeigt wird, wenn die Bedingungen nicht erfüllt sind. Mögliche Werte für ${fehlermeldung}: Text der erwarteten Fehlermeldung, z.B. `Gewicht höher als erwartet`.
     Log    Erwarte Fehlermeldung: ${fehlermeldung}
 
-# Kategorie: Zufallsoperationen
-Setze Möglichkeiten Für Zufallsparameter
-    [Arguments]    ${parameter_name}    ${parameter_values}
-    [Documentation]    Setzt die möglichen Werte für einen Zufallsparameter. Mögliche Werte für Winkel: [0, 45, 90] Grad. Mögliche Werte für Verbindungsdauer: 1-10 Sekunden. Mögliche Werte für gleichzeitige Verbindungen: 1-10.
-    Log    Setze Zufallsparameter für ${parameter_name} mit Werten ${parameter_values}
+# Kategorie: Stresstest
+Wähle Karte für Stresstest
+    [Arguments]    ${kartentyp}
+    [Documentation]    Setzt den Kartentyp für einen Stresstest. Mögliche Werte ['Zufällig', 'Ordinationskarte', 'Gesundheitskarte', 'Zutrittskarte']
+    Log    Setze Kartentyp
 
-# Kategorie: Zufallsoperationen
-Verbinde Zufällige Karte Mit Leser
-    [Documentation]    Verbindet eine zufällig ausgewählte Karte mit dem Kartenleser bei einem zufälligen Winkel und für eine zufällige Dauer. Mögliche Karten: `Ordinationskarte`, `Gesundheitskarte`, `Fehlerfallkarte`. Mögliche Winkel: [0, 45, 90] Grad. Mögliche Verbindungsdauer: 1-10 Sekunden.
-    ${kartentyp} =    Evaluate    random.choice(['Ordinationskarte', 'Gesundheitskarte', 'Fehlerfallkarte'])
-    ${winkel} =    Evaluate    random.choice([0, 45, 90])
-    ${dauer} =    Evaluate    random.randint(1, 10)
-    Verbinde Karte Mit Leser    ${kartentyp}
-    Log    Verbinde ${kartentyp} mit Winkel ${winkel}° und für ${dauer} Sekunden
-    Warte X Sekunden    ${dauer}
-    Entferne Objekt Von Position    ${kartentyp}
-    Log    ${kartentyp} wurde erfolgreich entfernt nach ${dauer} Sekunden
+# Kategorie: Stresstest
+Wähle Winkel für Stresstest
+    [Arguments]    ${winkel}
+    [Documentation]    Setzt den Winkel mit dem die Karte verbunden wird für einen Stresstest. Mögliche Werte ['Zufällig', '0', '45', '90']
+    Log    Setze Winkel
 
-# Kategorie: Zufallsoperationen
-Simuliere Gleichzeitige Leseanfragen
-    [Documentation]    Schickt eine zufällige Anzahl gleichzeitiger Leseanfragen, um das System unter Last zu testen. Mögliche Anzahl gleichzeitiger Verbindungen: 1-10.
-    ${anzahl_threads} =    Evaluate    random.randint(1, 10)
-    Log    Simuliere ${anzahl_threads} gleichzeitige Leseanfragen
-    FOR    ${i}    IN RANGE    ${anzahl_threads}
-        Verbinde Zufällige Karte Mit Leser
-        Log    Gleichzeitige Leseanfrage ${i} abgeschlossen
-    END
+# Kategorie: Stresstest
+Wähle Karten-Verbindungsdauer für Stresstest
+    [Arguments]    ${dauer}
+    [Documentation]    Setzt die Dauer mit dem die Karte verbunden wird für einen Stresstest in Sekunden. Mögliche Werte ['Zufällig', '1-60']
+    Log    Setze Winkel
 
-# Kategorie: Stresstests
-Wiederhole Stresstest Für N Stunden
+# Kategorie: Stresstest
+Starte Stresstest
+    [Documentation]    Startet Stresstest, sofern zuvor die Parameter für 'Wähle Karte für Stresstest', 'Wähle Winkel für Stresstest' und 'Wähle Karten-Verbindungsdauer für Stresstest' gesetzt wurden. Dabei wird die gewählte Karte mit dem Leser verbunden, es wird geschaut ob diese erfolgreich ausgelesen werden kann und dann wird sie wieder entfernt und das für die angegebene Dauer in Stunden. Beispielswert: 1
     [Arguments]    ${stunden}
-    [Documentation]    Wiederholt den Stresstest für die angegebene Anzahl von Stunden, um die Belastbarkeit des Systems zu prüfen. Die Dauer des Stresstests kann variabel festgelegt werden.
-    ${start_time} =    Get Time    epoch
-    ${end_time} =    Evaluate    ${start_time} + ${stunden} * 3600
-    WHILE    Get Time epoch < ${end_time}
-        Simuliere Gleichzeitige Leseanfragen
-        Log    Wiederhole Stresstest weiter...
-    END
-    Log    ${stunden} Stunden Stresstest abgeschlossen
+    Log    Starte Stresstest
 
 *** Test Cases ***
 
