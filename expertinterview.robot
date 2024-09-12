@@ -31,14 +31,6 @@ Lese Karte Aus
     [Documentation]    Liest eine angegebene Karte aus, um zu überprüfen, ob der Kartenleser die Karte korrekt erkennt. Mögliche Werte für ${kartentyp}: `Ordinationskarte`, `Gesundheitskarte`, 'Fehlerfallkarte'.
     Log    Lese ${kartentyp} ein
 
-# Kategorie: Kartenoperationen
-Prüfe Karte Erkannt
-    [Arguments]    ${kartentyp}
-    [Documentation]    Prüft, ob eine angegebene Karte korrekt vom Kartenleser erkannt wird und gibt den Status zurück. Mögliche Werte für ${kartentyp}: `Ordinationskarte`, `Gesundheitskarte`, 'Fehlerfallkarte'.
-    Log    Prüfe, ob ${kartentyp} korrekt erkannt wurde
-    ${erkannt} =    Run Keyword And Return Status    Lese Karte Aus    ${kartentyp}
-    Should Be True    ${erkannt}    ${kartentyp} wurde nicht korrekt erkannt
-
 # Kategorie: Geräte-Management
 Starte Kartenleser Neu
     [Documentation]    Startet den Kartenleser neu, um das System in den Grundzustand zu versetzen.
