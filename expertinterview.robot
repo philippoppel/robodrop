@@ -102,15 +102,6 @@ Lege Produkt Auf Waage
     Entferne Objekt Von Position    ${produktname}
 
 # Kategorie: Zahlungs-Management
-Versuche Zahlung Durchzuführen
-    [Documentation]    Simuliert den Versuch, die Zahlung durchzuführen, basierend auf den aktuellen Bedingungen des Self-Checkout-Systems.
-    Log    Versuche Zahlung durchzuführen
-    ${response}=    POST    ${API_URL}/try_payment
-    Should Be Equal As Numbers    ${response.status_code}    200
-    Log    Zahlungsvorgang abgeschlossen oder Fehlermeldung erwartet
-    Log    ${response.json()}
-
-# Kategorie: Zahlungs-Management
 Versuche Zahlung durchführen
     [Arguments]    ${zahlungsmethode}
     [Documentation]    Simuliert die Zahlung mit der angegebenen Zahlungsmethode. Mögliche Werte für ${zahlungsmethode}: `Kreditkarte`, `NFC`, `Bargeld`.
